@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ERP Medical &mdash; SoftCapture</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0500;
+  --orange:#f59e0b;
+  --orange-d:#b45309;
+  --orange-l:#fcd34d;
+  --white:#fffbeb;
+  --muted:#78716c;
+  --card:rgba(18,10,2,0.94);
+  --border:rgba(245,158,11,0.22);
+}
+html{scroll-behavior:auto}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:rgba(12,5,0,.82);border-bottom:1px solid rgba(245,158,11,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
+#topbar.visible{opacity:1;pointer-events:auto}
+.tb-logo{font-weight:900;font-size:.9rem;text-decoration:none;color:var(--white)}
+.tb-logo span{color:var(--orange-l)}
+.tb-back{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:color .2s}
+.tb-back:hover{color:var(--orange-l)}
+.tb-tag{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--orange-l);background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:2rem;padding:.25rem .8rem}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.18}
+#prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--orange),var(--orange-l));z-index:700}
+.panel{width:100vw;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;overflow:hidden;padding:6rem 2rem}
+.h-track-outer{position:relative;z-index:1}
+.h-track-inner{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;width:100vw}
+.h-track-slides{display:flex;flex-shrink:0;height:100%;will-change:transform}
+.h-slide{width:100vw;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:2rem 5vw}
+.eyebrow{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--orange-l);margin-bottom:1rem;display:block;text-align:center}
+.big{font-size:clamp(2.6rem,6.5vw,5.8rem);font-weight:900;line-height:1.05}
+.acc{color:var(--orange-l)}
+.sub{color:var(--muted);font-size:1rem;line-height:1.78;max-width:560px;margin-top:1.2rem}
+#hero{background:radial-gradient(ellipse 80% 60% at 55% 35%,rgba(245,158,11,.1),transparent);text-align:center}
+.btn{display:inline-block;padding:.88rem 2.3rem;border-radius:3rem;font-weight:700;font-size:.88rem;letter-spacing:.07em;text-decoration:none;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.btn-p{background:var(--orange);color:#1a0900}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(245,158,11,.4)}
+.btn-o{border:2px solid var(--border);color:var(--white);background:transparent;margin-left:1rem}
+.btn-o:hover{border-color:var(--orange-l);color:var(--orange-l)}
+.hero-btns{margin-top:2.5rem}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.28);border-radius:2rem;padding:.4rem 1.1rem;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-l);margin-bottom:1.8rem}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:.5rem;color:var(--muted);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;align-items:center}
+.s-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--orange-l),transparent);animation:sp 1.8s ease-in-out infinite}
+@keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+#problema .content{max-width:1040px;width:100%}
+.prob-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-top:3rem}
+.p-card{background:var(--card);border:1px solid rgba(239,68,68,.18);border-radius:1.1rem;padding:2rem 1.5rem;text-align:center}
+.p-card .ico{font-size:2.2rem;display:block;margin-bottom:.9rem}
+.p-card h3{font-size:.98rem;font-weight:700;margin-bottom:.45rem}
+.p-card p{font-size:.83rem;color:var(--muted);line-height:1.6}
+.mod-card{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.mod-num{font-size:.7rem;letter-spacing:.42em;color:var(--orange-l);text-transform:uppercase;margin-bottom:.7rem}
+.mod-name{font-size:clamp(1.8rem,3.5vw,2.9rem);font-weight:900;line-height:1.08;margin-bottom:1.1rem}
+.mod-desc{color:var(--muted);line-height:1.8;font-size:.94rem;margin-bottom:1.6rem}
+.feats{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.feats li{display:flex;align-items:flex-start;gap:.65rem;font-size:.87rem}
+.feats li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--orange-l);margin-top:.4rem;flex-shrink:0}
+.mod-vis{height:360px;border-radius:1.5rem;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mod-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;width:280px;height:280px;opacity:.12}
+.intro-slide{max-width:640px;text-align:center}
+.arrow-anim{margin-top:1.5rem;font-size:2rem;animation:sp 1.5s ease-in-out infinite;display:inline-block;color:var(--orange-l)}
+#beneficios{text-align:center}
+.ben-cols{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;max-width:1000px;margin-top:3.5rem;width:100%}
+.ben-col{text-align:left}
+.ben-col-title{font-size:.65rem;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:var(--orange-l);margin-bottom:1.4rem;display:block;padding-bottom:.6rem;border-bottom:1px solid rgba(245,158,11,.22)}
+.ben-item{display:flex;gap:1rem;margin-bottom:1.2rem;align-items:flex-start}
+.ben-icon{width:36px;height:36px;border-radius:.65rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.ben-item h4{font-size:.9rem;font-weight:700;margin-bottom:.3rem}
+.ben-item p{font-size:.82rem;color:var(--muted);line-height:1.6}
+#sectores{text-align:center;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(245,158,11,.06),transparent)}
+.sect-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.3rem;max-width:1100px;margin-top:3.2rem;width:100%}
+.sect-card{background:var(--card);border:1px solid var(--border);border-radius:1.2rem;padding:1.8rem 1.5rem;text-align:center;transition:border-color .3s,transform .3s}
+.sect-card:hover{border-color:var(--orange-l);transform:translateY(-4px)}
+.sect-card .ico{font-size:2rem;display:block;margin-bottom:.9rem}
+.sect-card h3{font-size:.9rem;font-weight:700;margin-bottom:.45rem}
+.sect-card p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.sect-tag{display:inline-block;margin-top:.8rem;padding:.26rem .78rem;border-radius:2rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;background:rgba(245,158,11,.1);color:var(--orange-l);border:1px solid rgba(245,158,11,.22)}
+#integraciones{text-align:center}
+.int-grid{display:flex;flex-wrap:wrap;gap:1.1rem;justify-content:center;margin-top:2.8rem;max-width:860px}
+.int-pill{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:.65rem 1.3rem;font-size:.8rem;font-weight:600;color:var(--white)}
+#stats{text-align:center}
+.stats-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:2rem;max-width:840px;margin-top:2.8rem;width:100%}
+.st-n{font-size:3.4rem;font-weight:900;color:var(--orange-l);display:block;line-height:1}
+.st-l{color:var(--muted);font-size:.8rem;margin-top:.42rem;letter-spacing:.1em;text-transform:uppercase}
+#cta{text-align:center;background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(245,158,11,.1),transparent)}
+#cta h2{font-size:clamp(2.2rem,5vw,4.4rem);font-weight:900;max-width:800px;line-height:1.08}
+#cta h2 span{color:var(--orange-l)}
+.cta-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:2.4rem}
+.contacts{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;margin-top:2.2rem;color:var(--muted);font-size:.86rem}
+.contacts a{color:var(--muted);text-decoration:none;transition:color .3s}
+.contacts a:hover{color:var(--orange-l)}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.76rem;color:var(--muted)}
+.f-logo{font-weight:800;color:var(--white);font-size:.9rem}
+.f-logo span{color:var(--orange-l)}
+.f-links{display:flex;gap:1.4rem;flex-wrap:wrap}
+.f-links a{color:var(--muted);text-decoration:none;transition:color .3s}
+.f-links a:hover{color:var(--white)}
+#play-overlay{position:fixed;inset:0;z-index:500;background:rgba(12,5,0,.97);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:auto;transition:opacity 1s ease}
+.play-inner{max-width:580px;padding:2rem}
+.play-eye{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--orange-l);display:block;margin-bottom:1.5rem}
+.play-title{font-size:clamp(2.8rem,6vw,4.8rem);font-weight:900;line-height:1.05;margin-bottom:1.1rem}
+.play-title span{color:var(--orange-l)}
+.play-sub{color:var(--muted);font-size:1rem;line-height:1.72;max-width:420px;margin:0 auto 2.5rem}
+.play-start{display:inline-flex;align-items:center;gap:.9rem;padding:1.1rem 3rem;border-radius:4rem;border:none;background:var(--orange);color:#1a0900;font-weight:800;font-size:1.05rem;letter-spacing:.06em;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.play-start:hover{transform:scale(1.06);box-shadow:0 0 55px rgba(245,158,11,.4)}
+.play-hint{margin-top:1.4rem;color:var(--muted);font-size:.76rem;letter-spacing:.1em}
+.play-start-wrap{position:relative;display:inline-block;margin-bottom:2.5rem}
+.pulse-ring{position:absolute;inset:-10px;border-radius:4rem;border:1px solid var(--orange-l);opacity:.5;animation:pulseRing 2s ease-out infinite;pointer-events:none}
+@keyframes pulseRing{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.12);opacity:0}}
+#audio-ctrl{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;align-items:center;gap:.35rem;opacity:0;pointer-events:none;transition:opacity .4s}
+#audio-ctrl.visible{opacity:1;pointer-events:auto}
+.ctrl-wrap{position:relative;width:56px;height:56px}
+.ring-svg{position:absolute;width:56px;height:56px;top:0;left:0;transform:rotate(-90deg);pointer-events:none}
+.ring-bg{fill:none;stroke:rgba(245,158,11,.14);stroke-width:3}
+.ring-fill{fill:none;stroke:var(--orange-l);stroke-width:3;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8}
+#toggle-btn{width:56px;height:56px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+#toggle-btn:hover{background:rgba(245,158,11,.18);transform:scale(1.06)}
+#audio-time{font-size:.68rem;color:var(--muted);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+#mute-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+#mute-btn:hover{background:rgba(245,158,11,.18);transform:scale(1.06)}
+#mute-btn.muted{color:#ef4444;border-color:rgba(239,68,68,.35)}
+#tour-nav{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:400;opacity:0;pointer-events:none;transition:opacity .4s}
+#tour-nav.visible{opacity:1;pointer-events:auto}
+#nav-panel{position:absolute;left:0;top:50%;transform:translateY(-50%) translateX(calc(-100% - 1px));background:rgba(12,5,0,.9);border:1px solid rgba(245,158,11,.2);border-left:none;border-radius:0 14px 14px 0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:.65rem 0;min-width:210px;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+#tour-nav.open #nav-panel{transform:translateY(-50%) translateX(0)}
+#nav-toggle{position:absolute;left:0;top:50%;transform:translateY(-50%);width:22px;height:50px;background:rgba(12,5,0,.85);border:1px solid rgba(245,158,11,.24);border-left:none;border-radius:0 8px 8px 0;color:var(--orange-l);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:left .35s cubic-bezier(.4,0,.2,1),background .2s;padding:0}
+#nav-toggle:hover{background:rgba(245,158,11,.12)}
+#tour-nav.open #nav-toggle{left:210px}
+.nav-label{font-size:.55rem;letter-spacing:.32em;text-transform:uppercase;color:var(--orange-l);padding:.1rem 1.15rem .65rem;display:block}
+#nav-list{list-style:none}
+#nav-list li button{width:100%;text-align:left;padding:.46rem 1.15rem;background:none;border:none;color:var(--muted);font-size:.75rem;letter-spacing:.03em;cursor:pointer;transition:color .18s,background .18s,padding-left .18s;display:flex;align-items:center;gap:.55rem}
+#nav-list li button:hover{color:var(--white);background:rgba(245,158,11,.08);padding-left:1.5rem}
+#nav-list li button.active{color:var(--orange-l)}
+#nav-list li button .nd{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.nav-sep{height:1px;background:rgba(245,158,11,.12);margin:.38rem .9rem}
+@media(max-width:768px){.mod-card{grid-template-columns:1fr;gap:2rem}.mod-vis{height:220px}.ben-cols{grid-template-columns:1fr}footer{justify-content:center;text-align:center}}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div id="topbar">
+  <a class="tb-logo" href="index.html">Soft<span>Capture</span>&reg;</a>
+  <span class="tb-tag">ERP Medical</span>
+  <a class="tb-back" href="index.html">
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Volver al inicio
+  </a>
+</div>
+
+<div id="play-overlay">
+  <div class="play-inner">
+    <span class="play-eye">SoftCapture &middot; ERP Medical &middot; Recorrido Guiado</span>
+    <h2 class="play-title">ERP dise&ntilde;ado<br><span>para la salud.</span></h2>
+    <p class="play-sub">Gestiona agendar, ventas, producci&oacute;n m&eacute;dica, facturaci&oacute;n Fonasa &amp; Isapres y reportabilidad en tiempo real desde un solo sistema.</p>
+    <div class="play-start-wrap">
+      <div class="pulse-ring"></div>
+      <button class="play-start" id="start-btn">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Iniciar recorrido
+      </button>
+    </div>
+    <p class="play-hint">&#x1F50A; Activa el volumen para la experiencia completa</p>
+  </div>
+</div>
+
+<div id="audio-ctrl">
+  <div class="ctrl-wrap">
+    <svg class="ring-svg" viewBox="0 0 56 56">
+      <circle class="ring-bg" cx="28" cy="28" r="24"/>
+      <circle class="ring-fill" cx="28" cy="28" r="24" id="ring-circle"/>
+    </svg>
+    <button id="toggle-btn" title="Pausar / Reanudar"></button>
+  </div>
+  <span id="audio-time">0:00</span>
+  <button id="mute-btn" title="Silenciar"></button>
+</div>
+
+<nav id="tour-nav">
+  <div id="nav-panel">
+    <span class="nav-label">ERP Medical</span>
+    <ul id="nav-list">
+      <li><button data-section="hero"><span class="nd"></span>Inicio</button></li>
+      <li><button data-section="problema"><span class="nd"></span>El Desaf&iacute;o</button></li>
+      <li class="nav-sep" role="separator"></li>
+      <li><button data-section="slide-0"><span class="nd"></span>Sistema</button></li>
+      <li><button data-section="slide-1"><span class="nd"></span>Agenda &amp; Admin</button></li>
+      <li><button data-section="slide-2"><span class="nd"></span>Ventas &amp; Caja</button></li>
+      <li><button data-section="slide-3"><span class="nd"></span>Producci&oacute;n M&eacute;dica</button></li>
+      <li><button data-section="slide-4"><span class="nd"></span>Backoffice</button></li>
+      <li><button data-section="slide-5"><span class="nd"></span>Gesti&oacute;n &amp; Soporte</button></li>
+      <li class="nav-sep" role="separator"></li>
+      <li><button data-section="beneficios"><span class="nd"></span>Beneficios</button></li>
+      <li><button data-section="integraciones"><span class="nd"></span>Integraciones</button></li>
+      <li><button data-section="sectores"><span class="nd"></span>Sectores</button></li>
+      <li><button data-section="stats"><span class="nd"></span>En N&uacute;meros</button></li>
+      <li><button data-section="cta"><span class="nd"></span>Contacto</button></li>
+    </ul>
+  </div>
+  <button id="nav-toggle" title="Men&uacute;">
+    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+  </button>
+</nav>
+
+<!-- HERO -->
+<div class="panel" id="hero">
+  <div class="hero-badge"><span>&#x1F3E5;</span> ERP &mdash; Sistema para Centros de Salud</div>
+  <span class="eyebrow" id="hero-eye">VirtualFile &middot; Suite SoftCapture &middot; Salud</span>
+  <h1 class="big" id="hero-h1" style="text-align:center">
+    Tu centro m&eacute;dico,<br>
+    <span class="acc">administrado con inteligencia</span>
+  </h1>
+  <p class="sub" style="text-align:center" id="hero-sub">
+    ERP Medical es el sistema especialmente dise&ntilde;ado para cubrir todos los requerimientos
+    de un centro de salud: agenda, ventas, producci&oacute;n m&eacute;dica, facturaci&oacute;n Fonasa/Isapres
+    y reportabilidad en tiempo real, todo en una sola plataforma integrada.
+  </p>
+  <div class="hero-btns" id="hero-btns">
+    <a href="https://virtualfile.cl/productos/web%20ERP/index.html" target="_blank" class="btn btn-p">Ver ERP Medical</a>
+    <a href="mailto:contacto@softcapture-usa.com?subject=Demo%20ERP%20Medical" class="btn btn-o">Solicitar demo</a>
+  </div>
+  <div class="scroll-hint" id="sh"><span>Descubrir</span><div class="s-line"></div></div>
+</div>
+
+<!-- PROBLEMA -->
+<div class="panel" id="problema">
+  <div class="content" style="max-width:1040px;width:100%">
+    <span class="eyebrow">El desaf&iacute;o en centros de salud</span>
+    <h2 class="big" style="font-size:clamp(2rem,4.5vw,3.5rem);text-align:center">
+      &iquest;Cu&aacute;ntos sistemas usan<br>para <span class="acc">gestionar su cl&iacute;nica?</span>
+    </h2>
+    <div class="prob-grid">
+      <div class="p-card">
+        <span class="ico">&#x1F4C5;</span>
+        <h3>Agenda desconectada</h3>
+        <p>Reservas en planillas o sistemas separados que no hablan con ventas ni con el historial del paciente.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F4B3;</span>
+        <h3>Facturaci&oacute;n manual</h3>
+        <p>Cobros a Fonasa e Isapres gestionados a mano, con errores y demoras en los reembolsos.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F4CB;</span>
+        <h3>Historial fragmentado</h3>
+        <p>El m&eacute;dico no tiene en pantalla los ex&aacute;menes, diagn&oacute;sticos previos ni historial de pagos del paciente.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F4CA;</span>
+        <h3>Sin reportes en tiempo real</h3>
+        <p>Tomar decisiones con datos de ayer o de la semana pasada porque no hay dashboards autom&aacute;ticos.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULOS HORIZONTAL -->
+<div class="h-track-outer" id="products-outer">
+  <div class="h-track-inner">
+    <div class="h-track-slides" id="products-slides">
+
+      <!-- INTRO -->
+      <div class="h-slide">
+        <div class="intro-slide">
+          <span class="eyebrow">7 m&oacute;dulos integrados</span>
+          <h2 class="big">Un sistema.<br><span class="acc">Todo el centro m&eacute;dico.</span></h2>
+          <p class="sub" style="text-align:center;margin:1.2rem auto 0">Desliza para conocer cada m&oacute;dulo del ERP Medical.</p>
+          <span class="arrow-anim">&#8594;</span>
+        </div>
+      </div>
+
+      <!-- 01 ADMINISTRACION + AGENDA -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">01 &middot; M&oacute;dulo</p>
+            <h2 class="mod-name">Agenda &amp; <span style="color:var(--orange-l)">Administraci&oacute;n</span></h2>
+            <p class="mod-desc">Gestiona usuarios, perfiles y la agenda completa del centro. Reserva horas online, in situ o por call center, con disponibilidad en tiempo real por especialidad.</p>
+            <ul class="feats">
+              <li>Ingreso, b&uacute;squeda y creaci&oacute;n de usuarios</li>
+              <li>Asignaci&oacute;n de perfiles por &aacute;rea</li>
+              <li>Reserva, confirmaci&oacute;n y anulaci&oacute;n de horas m&eacute;dicas y ex&aacute;menes</li>
+              <li>Disponibilidad en tiempo real por especialidad</li>
+              <li>Reserva de salas y recursos</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(245,158,11,.35)">
+            <div class="mod-orb" style="background:var(--orange);top:-80px;right:-80px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- calendario base -->
+              <rect x="40" y="50" width="180" height="160" rx="10" fill="rgba(245,158,11,.07)" stroke="#fcd34d" stroke-width="1.2"/>
+              <!-- header calendario -->
+              <rect x="40" y="50" width="180" height="26" rx="10" fill="rgba(245,158,11,.18)" stroke="#fcd34d" stroke-width="1.2"/>
+              <text x="130" y="67" text-anchor="middle" fill="#fcd34d" font-size="8" font-weight="bold" font-family="monospace">AGENDA — ENERO 2025</text>
+              <!-- días grid 5x4 -->
+              <rect x="52"  y="88"  width="28" height="22" rx="5" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="66"  y="102" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">Lun 6</text>
+              <rect x="84"  y="88"  width="28" height="22" rx="5" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="98"  y="102" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">Mar 7</text>
+              <rect x="116" y="88"  width="28" height="22" rx="5" fill="rgba(52,211,153,.18)" stroke="#34d399" stroke-width="1.1"/>
+              <text x="130" y="102" text-anchor="middle" fill="#34d399" font-size="7" font-family="monospace">&#x2665; Mié 8</text>
+              <rect x="148" y="88"  width="28" height="22" rx="5" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="162" y="102" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">Jue 9</text>
+              <rect x="180" y="88"  width="28" height="22" rx="5" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="194" y="102" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">Vie 10</text>
+              <!-- horas -->
+              <rect x="52"  y="116" width="156" height="15" rx="4" fill="rgba(245,158,11,.1)" stroke="#fcd34d" stroke-width=".6"/>
+              <text x="130" y="127" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">09:00 — Dr. García — Cardiología</text>
+              <rect x="52"  y="135" width="156" height="15" rx="4" fill="rgba(245,158,11,.1)" stroke="#fcd34d" stroke-width=".6"/>
+              <text x="130" y="146" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">10:30 — Dra. López — Pediatría</text>
+              <rect x="52"  y="154" width="156" height="15" rx="4" fill="rgba(52,211,153,.12)" stroke="#34d399" stroke-width=".8"/>
+              <text x="130" y="165" text-anchor="middle" fill="#34d399" font-size="6.5" font-family="monospace">&#x2713; 11:00 — CONFIRMADA</text>
+              <rect x="52"  y="173" width="156" height="15" rx="4" fill="rgba(245,158,11,.1)" stroke="#fcd34d" stroke-width=".6"/>
+              <text x="130" y="184" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">14:00 — Ex. de Sangre — Lab.</text>
+              <!-- indicador -->
+              <text x="130" y="220" text-anchor="middle" fill="rgba(252,211,77,.5)" font-size="6.5" font-family="monospace">Online | In situ | Call center</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 VENTAS -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">02 &middot; M&oacute;dulo</p>
+            <h2 class="mod-name">Ventas &amp; <span style="color:var(--orange-l)">Caja</span></h2>
+            <p class="mod-desc">Procesa &oacute;rdenes de atenci&oacute;n, abre y cierra caja, gestiona formas de pago, aplica descuentos y cuadra todas las transacciones del d&iacute;a.</p>
+            <ul class="feats">
+              <li>&Oacute;rdenes de atenci&oacute;n (apertura, modificaci&oacute;n, anulaci&oacute;n)</li>
+              <li>Apertura, cierre, cuadre y rendici&oacute;n de caja</li>
+              <li>M&uacute;ltiples formas de pago: efectivo, tarjeta, transfer.</li>
+              <li>Aplicaci&oacute;n de descuentos y convenios</li>
+              <li>Trazabilidad completa de todas las transacciones</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(245,158,11,.35)">
+            <div class="mod-orb" style="background:var(--orange-d);bottom:-60px;left:-60px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- pantalla POS -->
+              <rect x="50" y="44" width="160" height="120" rx="9" fill="rgba(245,158,11,.08)" stroke="#fcd34d" stroke-width="1.2"/>
+              <text x="130" y="62" text-anchor="middle" fill="#fcd34d" font-size="8" font-weight="bold" font-family="monospace">ORDEN DE ATENCIÓN</text>
+              <line x1="60" y1="68" x2="200" y2="68" stroke="#fcd34d" stroke-width=".6" opacity=".4"/>
+              <!-- items orden -->
+              <text x="65"  y="83" fill="#fcd34d" font-size="6.5" font-family="monospace">Consulta general</text>
+              <text x="170" y="83" text-anchor="end" fill="#fcd34d" font-size="6.5" font-family="monospace">$25.000</text>
+              <text x="65"  y="97" fill="#fcd34d" font-size="6.5" font-family="monospace">Toma de muestra</text>
+              <text x="170" y="97" text-anchor="end" fill="#fcd34d" font-size="6.5" font-family="monospace">$8.000</text>
+              <text x="65"  y="111" fill="rgba(245,158,11,.6)" font-size="6.5" font-family="monospace">Descuento Isapre</text>
+              <text x="170" y="111" text-anchor="end" fill="rgba(245,158,11,.6)" font-size="6.5" font-family="monospace">-$6.200</text>
+              <line x1="60" y1="118" x2="200" y2="118" stroke="#fcd34d" stroke-width=".6" opacity=".4"/>
+              <text x="65"  y="132" fill="#fcd34d" font-size="7.5" font-weight="bold" font-family="monospace">TOTAL</text>
+              <text x="170" y="132" text-anchor="end" fill="#fcd34d" font-size="7.5" font-weight="bold" font-family="monospace">$26.800</text>
+              <text x="65"  y="148" fill="rgba(52,211,153,.9)" font-size="6.5" font-family="monospace">&#x2713; Fonasa + Tarjeta</text>
+              <!-- botones pago -->
+              <rect x="50"  y="178" width="50" height="20" rx="5" fill="rgba(245,158,11,.18)" stroke="#fcd34d" stroke-width=".9"/>
+              <text x="75"  y="191" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">Efectivo</text>
+              <rect x="105" y="178" width="50" height="20" rx="5" fill="rgba(245,158,11,.18)" stroke="#fcd34d" stroke-width=".9"/>
+              <text x="130" y="191" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">Tarjeta</text>
+              <rect x="160" y="178" width="50" height="20" rx="5" fill="rgba(52,211,153,.18)" stroke="#34d399" stroke-width="1"/>
+              <text x="185" y="191" text-anchor="middle" fill="#34d399" font-size="6.5" font-family="monospace">&#x2713; Pagar</text>
+              <text x="130" y="228" text-anchor="middle" fill="rgba(252,211,77,.45)" font-size="6.5" font-family="monospace">Fonasa · Isapres · Seguros</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 PRODUCCION -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">03 &middot; M&oacute;dulo</p>
+            <h2 class="mod-name">Producci&oacute;n <span style="color:var(--orange-l)">M&eacute;dica</span></h2>
+            <p class="mod-desc">El m&eacute;dico accede online a la ficha completa e historial del paciente, gestiona ex&aacute;menes, ingresa diagn&oacute;sticos e indica imagenolog&iacute;a desde cualquier lugar.</p>
+            <ul class="feats">
+              <li>Acceso online a ficha e historial del paciente</li>
+              <li>Toma y seguimiento de ex&aacute;menes de laboratorio</li>
+              <li>Preparaci&oacute;n y registro del diagn&oacute;stico</li>
+              <li>Visualizaci&oacute;n de imagenolog&iacute;a (integrado con KPACS/Osiris)</li>
+              <li>Informes m&eacute;dicos a distancia</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(245,158,11,.35)">
+            <div class="mod-orb" style="background:var(--orange);top:-60px;right:-60px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- ficha paciente panel izq -->
+              <rect x="30" y="44" width="90" height="168" rx="9" fill="rgba(245,158,11,.07)" stroke="#fcd34d" stroke-width="1.1"/>
+              <text x="75" y="62" text-anchor="middle" fill="#fcd34d" font-size="7.5" font-weight="bold" font-family="monospace">PACIENTE</text>
+              <circle cx="75" cy="85" r="18" fill="rgba(245,158,11,.12)" stroke="#fcd34d" stroke-width="1"/>
+              <text x="75" y="90" text-anchor="middle" fill="#fcd34d" font-size="13">&#x1F9D1;&#x200D;&#x2695;&#xFE0F;</text>
+              <text x="75" y="114" text-anchor="middle" fill="#fcd34d" font-size="7" font-family="monospace">Juan Pérez</text>
+              <text x="75" y="126" text-anchor="middle" fill="rgba(245,158,11,.6)" font-size="6" font-family="monospace">RUT: 12.345.678-9</text>
+              <text x="75" y="140" text-anchor="middle" fill="rgba(245,158,11,.6)" font-size="6" font-family="monospace">42 años</text>
+              <text x="75" y="157" text-anchor="middle" fill="#34d399" font-size="6.5" font-family="monospace">&#x2665; Activo</text>
+              <text x="75" y="173" text-anchor="middle" fill="rgba(245,158,11,.5)" font-size="6" font-family="monospace">3 atenciones</text>
+              <text x="75" y="186" text-anchor="middle" fill="rgba(245,158,11,.5)" font-size="6" font-family="monospace">anteriores</text>
+              <!-- ficha clínica panel der -->
+              <rect x="132" y="44" width="100" height="168" rx="9" fill="rgba(245,158,11,.06)" stroke="#fcd34d" stroke-width="1"/>
+              <text x="182" y="60" text-anchor="middle" fill="#fcd34d" font-size="7" font-weight="bold" font-family="monospace">FICHA CLÍNICA</text>
+              <text x="142" y="76" fill="rgba(245,158,11,.7)" font-size="5.8" font-family="monospace">&#x1F4CA; Exámenes (3)</text>
+              <text x="142" y="89" fill="rgba(245,158,11,.7)" font-size="5.8" font-family="monospace">&#x1F5BC; Imagenología</text>
+              <text x="142" y="102" fill="rgba(245,158,11,.7)" font-size="5.8" font-family="monospace">&#x1F4DD; Diagnóstico</text>
+              <text x="142" y="115" fill="rgba(245,158,11,.7)" font-size="5.8" font-family="monospace">&#x1F4B3; Pagos/Fonasa</text>
+              <line x1="142" y1="122" x2="222" y2="122" stroke="#fcd34d" stroke-width=".5" opacity=".35"/>
+              <text x="182" y="137" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-weight="bold" font-family="monospace">DIAGNÓSTICO</text>
+              <rect x="140" y="142" width="84" height="40" rx="5" fill="rgba(245,158,11,.1)" stroke="#fcd34d" stroke-width=".7"/>
+              <text x="182" y="157" text-anchor="middle" fill="#fcd34d" font-size="5.8" font-family="monospace">Hipertensión leve</text>
+              <text x="182" y="168" text-anchor="middle" fill="rgba(245,158,11,.6)" font-size="5.5" font-family="monospace">CIE-10: I10</text>
+              <text x="182" y="195" text-anchor="middle" fill="#34d399" font-size="6.5" font-family="monospace">&#x2713; Enviado Kpacs</text>
+              <text x="182" y="207" text-anchor="middle" fill="rgba(52,211,153,.7)" font-size="5.8" font-family="monospace">Informe: A distancia</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 BACKOFFICE -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">04 &middot; M&oacute;dulo</p>
+            <h2 class="mod-name">Backoffice &amp; <span style="color:var(--orange-l)">Facturaci&oacute;n</span></h2>
+            <p class="mod-desc">Gestiona inventario de equipos m&eacute;dicos, facturaci&oacute;n electr&oacute;nica, convenios, c&aacute;lculo de honorarios y contabilidad general del centro de salud.</p>
+            <ul class="feats">
+              <li>Inventario de equipos m&eacute;dicos</li>
+              <li>Facturaci&oacute;n electr&oacute;nica autom&aacute;tica y online</li>
+              <li>Gesti&oacute;n de convenios institucionales</li>
+              <li>C&aacute;lculo y pago autom&aacute;tico de honorarios m&eacute;dicos</li>
+              <li>Contabilidad integrada: ingresos, egresos, balance</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(245,158,11,.35)">
+            <div class="mod-orb" style="background:var(--orange-d);bottom:-60px;right:-60px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- factura -->
+              <rect x="45" y="35" width="172" height="140" rx="9" fill="rgba(245,158,11,.07)" stroke="#fcd34d" stroke-width="1.2"/>
+              <text x="131" y="54" text-anchor="middle" fill="#fcd34d" font-size="8" font-weight="bold" font-family="monospace">FACTURA ELECTRÓNICA</text>
+              <line x1="55" y1="60" x2="207" y2="60" stroke="#fcd34d" stroke-width=".6" opacity=".35"/>
+              <text x="60" y="75" fill="rgba(245,158,11,.7)" font-size="6.5" font-family="monospace">Clínica del Sol — RUT 76.123.456-7</text>
+              <text x="60" y="89" fill="#fcd34d" font-size="6.5" font-family="monospace">Fonasa copago</text>
+              <text x="198" y="89" text-anchor="end" fill="#fcd34d" font-size="6.5" font-family="monospace">$18.500</text>
+              <text x="60" y="103" fill="#fcd34d" font-size="6.5" font-family="monospace">Isapre Cruz Blanca</text>
+              <text x="198" y="103" text-anchor="end" fill="#fcd34d" font-size="6.5" font-family="monospace">$22.000</text>
+              <text x="60" y="117" fill="rgba(245,158,11,.5)" font-size="6" font-family="monospace">Honorario Dr. García (30%)</text>
+              <text x="198" y="117" text-anchor="end" fill="rgba(245,158,11,.5)" font-size="6" font-family="monospace">$12.150</text>
+              <line x1="55" y1="124" x2="207" y2="124" stroke="#fcd34d" stroke-width=".6" opacity=".4"/>
+              <text x="60" y="138" fill="#fcd34d" font-size="7.5" font-weight="bold" font-family="monospace">TOTAL</text>
+              <text x="198" y="138" text-anchor="end" fill="#fcd34d" font-size="7.5" font-weight="bold" font-family="monospace">$52.650</text>
+              <rect x="55" y="145" width="148" height="22" rx="5" fill="rgba(52,211,153,.14)" stroke="#34d399" stroke-width="1"/>
+              <text x="129" y="159" text-anchor="middle" fill="#34d399" font-size="7" font-weight="bold" font-family="monospace">&#x2713; ENVIADA AL SII</text>
+              <!-- convenios tags -->
+              <rect x="45"  y="188" width="62" height="18" rx="9" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="76"  y="200" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">Fonasa</text>
+              <rect x="113" y="188" width="62" height="18" rx="9" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="144" y="200" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">Isapres</text>
+              <rect x="181" y="188" width="36" height="18" rx="9" fill="rgba(245,158,11,.14)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="199" y="200" text-anchor="middle" fill="#fcd34d" font-size="6.5" font-family="monospace">SII</text>
+              <text x="131" y="232" text-anchor="middle" fill="rgba(252,211,77,.4)" font-size="6.5" font-family="monospace">Facturación automática online</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 GESTION Y SOPORTE -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">05 &middot; M&oacute;dulo</p>
+            <h2 class="mod-name">Gesti&oacute;n &amp; <span style="color:var(--orange-l)">Soporte</span></h2>
+            <p class="mod-desc">Reportes de ventas, producci&oacute;n y atenci&oacute;n en tiempo real para la direcci&oacute;n. Sistema de tickets de soporte interno con seguimiento de status.</p>
+            <ul class="feats">
+              <li>Informes de ventas y producci&oacute;n en tiempo real</li>
+              <li>Indicadores de atenci&oacute;n por m&eacute;dico y especialidad</li>
+              <li>Visualizaci&oacute;n online de totales y facturas</li>
+              <li>Creaci&oacute;n de tickets de soporte</li>
+              <li>Seguimiento de status de cada ticket</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(245,158,11,.35)">
+            <div class="mod-orb" style="background:var(--orange);bottom:-40px;left:-40px;opacity:.1"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- dashboard simplificado -->
+              <text x="130" y="46" text-anchor="middle" fill="#fcd34d" font-size="7.5" font-weight="bold" font-family="monospace">DASHBOARD HOY</text>
+              <!-- métricas -->
+              <rect x="30"  y="56" width="90" height="56" rx="8" fill="rgba(245,158,11,.1)" stroke="#fcd34d" stroke-width="1"/>
+              <text x="75"  y="81" text-anchor="middle" fill="#fcd34d" font-size="18" font-weight="bold" font-family="monospace">84</text>
+              <text x="75"  y="98" text-anchor="middle" fill="rgba(245,158,11,.7)" font-size="6.5" font-family="monospace">Atenciones</text>
+              <rect x="138" y="56" width="90" height="56" rx="8" fill="rgba(52,211,153,.1)" stroke="#34d399" stroke-width="1"/>
+              <text x="183" y="81" text-anchor="middle" fill="#34d399" font-size="16" font-weight="bold" font-family="monospace">$2.3M</text>
+              <text x="183" y="98" text-anchor="middle" fill="rgba(52,211,153,.7)" font-size="6.5" font-family="monospace">Venta día</text>
+              <!-- barras ventas por hora -->
+              <text x="75" y="128" text-anchor="middle" fill="rgba(245,158,11,.6)" font-size="6" font-family="monospace">Ventas por hora</text>
+              <rect x="38"  y="132" width="10" height="28" rx="2" fill="rgba(245,158,11,.3)"/>
+              <rect x="52"  y="125" width="10" height="35" rx="2" fill="rgba(245,158,11,.45)"/>
+              <rect x="66"  y="118" width="10" height="42" rx="2" fill="rgba(245,158,11,.6)"/>
+              <rect x="80"  y="128" width="10" height="32" rx="2" fill="rgba(245,158,11,.4)"/>
+              <rect x="94"  y="115" width="10" height="45" rx="2" fill="rgba(245,158,11,.7)"/>
+              <!-- tickets soporte -->
+              <rect x="138" y="124" width="90" height="60" rx="8" fill="rgba(245,158,11,.06)" stroke="#fcd34d" stroke-width=".8"/>
+              <text x="183" y="140" text-anchor="middle" fill="#fcd34d" font-size="7" font-weight="bold" font-family="monospace">SOPORTE</text>
+              <rect x="148" y="146" width="70" height="12" rx="4" fill="rgba(52,211,153,.14)" stroke="#34d399" stroke-width=".7"/>
+              <text x="183" y="155" text-anchor="middle" fill="#34d399" font-size="6" font-family="monospace">&#x2713; Ticket #431 resuelto</text>
+              <rect x="148" y="163" width="70" height="12" rx="4" fill="rgba(245,158,11,.12)" stroke="#fcd34d" stroke-width=".7"/>
+              <text x="183" y="172" text-anchor="middle" fill="#fcd34d" font-size="6" font-family="monospace">&#x23F3; Ticket #437 en curso</text>
+              <!-- línea tiempo real -->
+              <text x="130" y="210" text-anchor="middle" fill="rgba(252,211,77,.45)" font-size="6.5" font-family="monospace">Reportes en tiempo real</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- BENEFICIOS -->
+<div class="panel" id="beneficios">
+  <span class="eyebrow">Beneficios para tu centro de salud</span>
+  <h2 class="big" style="font-size:clamp(1.9rem,4.5vw,3.6rem);text-align:center">M&aacute;s eficiencia, <span class="acc">mejor atenci&oacute;n</span></h2>
+  <div class="ben-cols">
+    <div class="ben-col">
+      <span class="ben-col-title">Para Pacientes</span>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F525;</div>
+        <div><h4>Mejor atenci&oacute;n m&eacute;dica</h4><p>El m&eacute;dico accede al historial completo al instante, mejorando la calidad de cada atenci&oacute;n.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F4CB;</div>
+        <div><h4>Toda su informaci&oacute;n disponible</h4><p>Atenciones, ex&aacute;menes, historial y pagos al alcance de los profesionales autorizados.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x23F1;&#xFE0F;</div>
+        <div><h4>Tiempos de espera reducidos</h4><p>Agenda y caja automatizadas eliminan colas y tiempos muertos en la consulta.</p></div>
+      </div>
+    </div>
+    <div class="ben-col">
+      <span class="ben-col-title">Para la Administraci&oacute;n</span>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F4B0;</div>
+        <div><h4>Cobro autom&aacute;tico Fonasa /Isapres</h4><p>C&aacute;lculo y facturaci&oacute;n electr&oacute;nica directa a aseguradoras sin intervenci&oacute;n manual.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F4CA;</div>
+        <div><h4>Reportes en tiempo real</h4><p>Ventas, producci&oacute;n y atenciones del d&iacute;a visualizados en el momento para tomar decisiones.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x2705;</div>
+        <div><h4>Trazabilidad total</h4><p>Cada examen, pago y consulta queda registrado con trazabilidad completa e inalterable.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTEGRACIONES -->
+<div class="panel" id="integraciones" style="min-height:60vh">
+  <span class="eyebrow">Integraciones certificadas</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3rem)">Se conecta con <span class="acc">tu ecosistema m&eacute;dico</span></h2>
+  <div class="int-grid">
+    <div class="int-pill">&#x1F53A; Fonasa</div>
+    <div class="int-pill">&#x1F3E5; Isapres</div>
+    <div class="int-pill">&#x1F4D1; Seguros m&eacute;dicos</div>
+    <div class="int-pill">&#x1F5BC;&#xFE0F; Osiris (PACS)</div>
+    <div class="int-pill">&#x1F5BC;&#xFE0F; KPACS</div>
+    <div class="int-pill">&#x1F9EA; Laboratorios</div>
+    <div class="int-pill">&#x1F4DC; SII (facturaci&oacute;n)</div>
+    <div class="int-pill">&#x2709;&#xFE0F; Sistemas externos</div>
+  </div>
+</div>
+
+<!-- SECTORES -->
+<div class="panel" id="sectores" style="min-height:70vh">
+  <span class="eyebrow">Ideal para</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3rem)">Cualquier <span class="acc">centro de salud</span></h2>
+  <div class="sect-grid">
+    <div class="sect-card"><span class="ico">&#x1F3E5;</span><h3>Cl&iacute;nicas privadas</h3><p>Gesti&oacute;n integral de especialidades, citas, pagos y facturaci&oacute;n en una sola plataforma.</p><span class="sect-tag">Cl&iacute;nica</span></div>
+    <div class="sect-card"><span class="ico">&#x1F6CF;&#xFE0F;</span><h3>Hospitales p&uacute;blicos</h3><p>Conexi&oacute;n directa con Fonasa e integraci&oacute;n con sistemas hospitalarios p&uacute;blicos.</p><span class="sect-tag">Hospital</span></div>
+    <div class="sect-card"><span class="ico">&#x1FA7A;</span><h3>Centros m&eacute;dicos</h3><p>M&uacute;ltiples especialidades, agenda compartida y reportes por m&eacute;dico y &aacute;rea.</p><span class="sect-tag">Centro m&eacute;dico</span></div>
+    <div class="sect-card"><span class="ico">&#x1F9EA;</span><h3>Laboratorios</h3><p>Control de muestras, trazabilidad de ex&aacute;menes e informes en l&iacute;nea para el m&eacute;dico.</p><span class="sect-tag">Laboratorio</span></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="panel" id="stats" style="min-height:50vh">
+  <span class="eyebrow">ERP Medical en n&uacute;meros</span>
+  <div class="stats-g">
+    <div><span class="st-n" data-target="21">0</span><p class="st-l">A&ntilde;os de experiencia</p></div>
+    <div><span class="st-n" data-target="7">0</span><p class="st-l">M&oacute;dulos integrados</p></div>
+    <div><span class="st-n" data-target="100">0</span><p class="st-l">% Trazabilidad</p></div>
+    <div><span class="st-n" data-target="120">0</span><p class="st-l">Clientes en la suite</p></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="panel" id="cta">
+  <span class="eyebrow">&iquest;Listo para transformar tu centro de salud?</span>
+  <h2>Gesti&oacute;n m&eacute;dica<br><span>inteligente desde el d&iacute;a uno.</span></h2>
+  <p class="sub" style="text-align:center;margin:1.2rem auto 0">Solicita una demo del ERP Medical y descubre c&oacute;mo SoftCapture digitaliza completamente la operaci&oacute;n de tu cl&iacute;nica u hospital.</p>
+  <div class="cta-btns">
+    <a href="mailto:contacto@softcapture-usa.com?subject=Demo%20ERP%20Medical" class="btn btn-p" style="font-size:1rem;padding:1rem 2.5rem">Solicitar demo gratuita</a>
+    <a href="https://virtualfile.cl" target="_blank" class="btn btn-o">Ver VirtualFile</a>
+  </div>
+  <div class="contacts">
+    <a href="tel:17866730858">&#x1F4DE; (1) 786 673 0858</a>
+    <a href="tel:56229380194">&#x1F4DE; (56) 229 380 194</a>
+    <a href="mailto:contacto@softcapture-usa.com">&#x2709;&#xFE0F; contacto@softcapture-usa.com</a>
+  </div>
+</div>
+
+<footer>
+  <span class="f-logo">Soft<span>Capture</span>&reg;</span>
+  <div class="f-links">
+    <a href="index.html">&#x2190; Centro de presentaciones</a>
+    <a href="https://virtualfile.cl" target="_blank">VirtualFile</a>
+    <a href="https://softcapture-usa.com/productos" target="_blank">Productos</a>
+    <a href="https://softcapture-usa.com/contacto" target="_blank">Contacto</a>
+  </div>
+  <span>&copy; 2026 SoftCapture&reg; &middot; Todos los derechos reservados.</span>
+</footer>
+
+<script>
+(function(){
+  var overlay=document.getElementById('play-overlay'),ctrl=document.getElementById('audio-ctrl'),topbar=document.getElementById('topbar'),toggleBtn=document.getElementById('toggle-btn'),ringEl=document.getElementById('ring-circle'),timeEl=document.getElementById('audio-time'),audio=new Audio('audio/Untitled.mp3');
+  audio.volume=0.2;
+  var CIRC=2*Math.PI*24,TOUR_MS=180000,playing=false,autoScroll=false,rafId=null,tourStart=null,pauseStart=null,totalPaused=0;
+  var maxScroll=function(){return document.documentElement.scrollHeight-window.innerHeight};
+  var getProgress=function(){if(!tourStart)return 0;var p=totalPaused+(pauseStart?Date.now()-pauseStart:0);return Math.min((Date.now()-tourStart-p)/TOUR_MS,1)};
+  var fmtTime=function(s){return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+  var updateUI=function(pct){ringEl.style.strokeDashoffset=CIRC-pct*CIRC;timeEl.textContent=fmtTime(pct*TOUR_MS/1000)};
+  var setIcon=function(p){toggleBtn.innerHTML=p?'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'};
+  function tick(){if(!autoScroll)return;var pct=getProgress();window.scrollTo(0,pct*maxScroll());updateUI(pct);document.getElementById('prog').style.width=(pct*100)+'%';if(pct<1){rafId=requestAnimationFrame(tick)}else{autoScroll=false;playing=false;cancelAnimationFrame(rafId);setIcon(false);updateUI(1)}}
+  document.getElementById('start-btn').addEventListener('click',function(){
+    audio.currentTime=0;audio.play().catch(function(e){console.warn(e)});
+    window.scrollTo({top:0,behavior:'instant'});tourStart=Date.now();totalPaused=0;pauseStart=null;autoScroll=true;playing=true;setIcon(true);requestAnimationFrame(tick);
+    overlay.style.transition='opacity 1s ease';overlay.style.opacity='0';overlay.style.pointerEvents='none';
+    setTimeout(function(){overlay.style.display='none'},1050);
+    setTimeout(function(){ctrl.classList.add('visible');topbar.classList.add('visible');document.getElementById('tour-nav').classList.add('visible')},700);
+  });
+  toggleBtn.addEventListener('click',function(){
+    if(playing){audio.pause();pauseStart=Date.now();autoScroll=false;cancelAnimationFrame(rafId);playing=false;setIcon(false)}
+    else{if(pauseStart){totalPaused+=Date.now()-pauseStart;pauseStart=null}audio.play().catch(function(e){console.warn(e)});autoScroll=true;playing=true;setIcon(true);requestAnimationFrame(tick)}
+  });
+  var wheelTimer;
+  window.addEventListener('wheel',function(){if(!playing)return;if(!pauseStart)pauseStart=Date.now();autoScroll=false;cancelAnimationFrame(rafId);clearTimeout(wheelTimer);wheelTimer=setTimeout(function(){if(playing){totalPaused+=Date.now()-pauseStart;pauseStart=null;autoScroll=true;requestAnimationFrame(tick)}},2000)},{passive:true});
+  window._tourJump=function(targetY){if(!tourStart)return;var ms=document.documentElement.scrollHeight-window.innerHeight;var pct=ms>0?Math.max(0,Math.min(1,targetY/ms)):0;if(pauseStart){totalPaused+=Date.now()-pauseStart;pauseStart=null}tourStart=Date.now()-totalPaused-pct*TOUR_MS;window.scrollTo({top:targetY,behavior:'smooth'})};
+  var muteBtn=document.getElementById('mute-btn'),isMuted=false;
+  function setMuteIcon(m){muteBtn.innerHTML=m?'<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 19L19 20.27 20.27 19 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>':'<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';m?muteBtn.classList.add('muted'):muteBtn.classList.remove('muted')}
+  muteBtn.addEventListener('click',function(){isMuted=!isMuted;audio.muted=isMuted;setMuteIcon(isMuted)});
+  setMuteIcon(false);setIcon(false);
+})();
+(function(){
+  document.getElementById('nav-toggle').addEventListener('click',function(){document.getElementById('tour-nav').classList.toggle('open')});
+  document.querySelectorAll('#nav-list button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sec=this.dataset.section,targetY=0;
+      if(sec.startsWith('slide-')){var idx=parseInt(sec.replace('slide-',''),10),outer=document.getElementById('products-outer'),slides=document.getElementById('products-slides'),cnt=slides?slides.querySelectorAll('.h-slide').length:6,dist=window.innerWidth*(cnt-1);targetY=outer.offsetTop+(cnt>1?(idx/(cnt-1))*dist:0)}
+      else{var el=document.getElementById(sec);if(el)targetY=el.offsetTop}
+      if(window._tourJump)window._tourJump(targetY);else window.scrollTo({top:targetY,behavior:'smooth'});
+      document.getElementById('tour-nav').classList.remove('open');
+    });
+  });
+})();
+try{gsap.registerPlugin(ScrollTrigger)}catch(e){}
+gsap.from('#hero-badge',{opacity:0,y:14,duration:.65,delay:.35});
+gsap.from('#hero-eye',{opacity:0,y:18,duration:.8,delay:.55});
+gsap.from('#hero-h1',{opacity:0,y:44,duration:1,delay:.8,ease:'power3.out'});
+gsap.from('#hero-sub',{opacity:0,y:28,duration:.9,delay:1.05,ease:'power3.out'});
+gsap.from('#hero-btns',{opacity:0,y:18,duration:.75,delay:1.25});
+gsap.from('#sh',{opacity:0,duration:.75,delay:1.65});
+var fu=function(sel,extra){extra=extra||{};gsap.utils.toArray(sel).forEach(function(el,i){gsap.from(el,Object.assign({scrollTrigger:{trigger:el,start:'top 88%'},y:48,opacity:0,duration:.85,ease:'power3.out',delay:i*.1},extra))})};
+fu('.p-card');fu('.ben-item');fu('.sect-card');fu('.int-pill',{y:20});
+gsap.from('.cta-btns,.contacts',{scrollTrigger:{trigger:'#cta',start:'top 80%'},y:28,opacity:0,stagger:.15,duration:.85});
+gsap.utils.toArray('.st-n').forEach(function(el){var t=+el.dataset.target;ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){var v=0,step=t/65,go=function(){v+=step;if(v<t){el.textContent=Math.ceil(v)+(t>=80?'+':'');requestAnimationFrame(go)}else el.textContent=t+(t>=100?'+':'')};go()}})});
+try{(function(){var outer=document.getElementById('products-outer'),slides=document.getElementById('products-slides'),count=slides.querySelectorAll('.h-slide').length;var getScrollDist=function(){return window.innerWidth*(count-1)};var setHeight=function(){outer.style.height=(getScrollDist()+window.innerHeight)+'px'};setHeight();var tween;function buildTrigger(){if(tween)tween.kill();tween=ScrollTrigger.create({trigger:outer,start:'top top',end:function(){return '+='+getScrollDist()},scrub:1,pin:'.h-track-inner',anticipatePin:1,onUpdate:function(self){gsap.set(slides,{x:-(self.progress*getScrollDist())})}})}buildTrigger();window.addEventListener('resize',function(){setHeight();try{ScrollTrigger.refresh()}catch(e){}})})()}catch(e){console.warn('GSAP:',e)}
+(function(){var cv=document.getElementById('bg-canvas'),cx=cv.getContext('2d'),W,H,pts=[],rid;function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}function Pt(){this.reset=function(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.4+.3;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.a=Math.random()*.4+.12};this.reset()}function init(){pts=[];for(var i=0;i<Math.floor(W*H/11000);i++)pts.push(new Pt())}function draw(){cx.clearRect(0,0,W,H);for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W||p.y<0||p.y>H)p.reset();cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle='rgba(245,158,11,'+p.a+')';cx.fill()}for(var i=0;i<pts.length-1;i++){for(var j=i+1;j<pts.length;j++){var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){cx.beginPath();cx.strokeStyle='rgba(245,158,11,'+(.06*(1-d/90))+')';cx.lineWidth=.45;cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.stroke()}}}rid=requestAnimationFrame(draw)}resize();init();draw();window.addEventListener('resize',function(){cancelAnimationFrame(rid);resize();init();draw()})})();
+window.addEventListener('scroll',function(){try{var d=document.documentElement;document.getElementById('prog').style.width=(d.scrollTop/(d.scrollHeight-window.innerHeight)*100)+'%'}catch(e){}});
+</script>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DMS Gestor Documental &mdash; SoftCapture</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06020f;
+  --purple:#7c3aed;
+  --purple-d:#5b21b6;
+  --purple-l:#a78bfa;
+  --cyan:#00d4ff;
+  --white:#faf5ff;
+  --muted:#64748b;
+  --card:rgba(10,5,25,0.92);
+  --border:rgba(124,58,237,0.22);
+}
+html{scroll-behavior:auto}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:rgba(6,2,15,.82);border-bottom:1px solid rgba(124,58,237,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
+#topbar.visible{opacity:1;pointer-events:auto}
+.tb-logo{font-weight:900;font-size:.9rem;text-decoration:none;color:var(--white)}
+.tb-logo span{color:var(--purple-l)}
+.tb-back{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:color .2s}
+.tb-back:hover{color:var(--purple-l)}
+.tb-tag{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--purple-l);background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);border-radius:2rem;padding:.25rem .8rem}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.22}
+#prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--purple),var(--purple-l));z-index:700}
+.panel{width:100vw;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;overflow:hidden;padding:6rem 2rem}
+.h-track-outer{position:relative;z-index:1}
+.h-track-inner{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;width:100vw}
+.h-track-slides{display:flex;flex-shrink:0;height:100%;will-change:transform}
+.h-slide{width:100vw;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:2rem 5vw}
+.eyebrow{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--purple-l);margin-bottom:1rem;display:block;text-align:center}
+.big{font-size:clamp(2.6rem,6.5vw,5.8rem);font-weight:900;line-height:1.05}
+.acc{color:var(--purple-l)}
+.sub{color:var(--muted);font-size:1rem;line-height:1.78;max-width:560px;margin-top:1.2rem}
+#hero{background:radial-gradient(ellipse 80% 60% at 55% 35%,rgba(124,58,237,.14),transparent);text-align:center}
+.btn{display:inline-block;padding:.88rem 2.3rem;border-radius:3rem;font-weight:700;font-size:.88rem;letter-spacing:.07em;text-decoration:none;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.btn-p{background:var(--purple);color:var(--white)}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(124,58,237,.4)}
+.btn-o{border:2px solid var(--border);color:var(--white);background:transparent;margin-left:1rem}
+.btn-o:hover{border-color:var(--purple-l);color:var(--purple-l)}
+.hero-btns{margin-top:2.5rem}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.28);border-radius:2rem;padding:.4rem 1.1rem;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple-l);margin-bottom:1.8rem}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:.5rem;color:var(--muted);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;align-items:center}
+.s-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--purple-l),transparent);animation:sp 1.8s ease-in-out infinite}
+@keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+#problema .content{max-width:1040px;width:100%}
+.prob-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem;margin-top:3rem}
+.p-card{background:var(--card);border:1px solid rgba(239,68,68,.18);border-radius:1.1rem;padding:2rem 1.5rem;text-align:center}
+.p-card .ico{font-size:2.2rem;display:block;margin-bottom:.9rem}
+.p-card h3{font-size:.98rem;font-weight:700;margin-bottom:.45rem}
+.p-card p{font-size:.83rem;color:var(--muted);line-height:1.6}
+.mod-card{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.mod-num{font-size:.7rem;letter-spacing:.42em;color:var(--purple-l);text-transform:uppercase;margin-bottom:.7rem}
+.mod-name{font-size:clamp(2rem,3.8vw,3.2rem);font-weight:900;line-height:1.08;margin-bottom:1.1rem}
+.mod-desc{color:var(--muted);line-height:1.8;font-size:.94rem;margin-bottom:1.6rem}
+.feats{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.feats li{display:flex;align-items:flex-start;gap:.65rem;font-size:.87rem}
+.feats li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple-l);margin-top:.4rem;flex-shrink:0}
+.mod-vis{height:360px;border-radius:1.5rem;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mod-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;width:280px;height:280px;opacity:.15}
+.intro-slide{max-width:640px;text-align:center}
+.arrow-anim{margin-top:1.5rem;font-size:2rem;animation:sp 1.5s ease-in-out infinite;display:inline-block;color:var(--purple-l)}
+#beneficios{text-align:center}
+.ben-cols{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;max-width:1000px;margin-top:3.5rem;width:100%}
+.ben-col{text-align:left}
+.ben-col-title{font-size:.65rem;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:var(--purple-l);margin-bottom:1.4rem;display:block;padding-bottom:.6rem;border-bottom:1px solid rgba(124,58,237,.22)}
+.ben-item{display:flex;gap:1rem;margin-bottom:1.2rem;align-items:flex-start}
+.ben-icon{width:36px;height:36px;border-radius:.65rem;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.ben-item h4{font-size:.9rem;font-weight:700;margin-bottom:.3rem}
+.ben-item p{font-size:.82rem;color:var(--muted);line-height:1.6}
+#sectores{text-align:center;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(124,58,237,.07),transparent)}
+.sect-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.3rem;max-width:1100px;margin-top:3.2rem;width:100%}
+.sect-card{background:var(--card);border:1px solid var(--border);border-radius:1.2rem;padding:1.8rem 1.5rem;text-align:center;transition:border-color .3s,transform .3s}
+.sect-card:hover{border-color:var(--purple-l);transform:translateY(-4px)}
+.sect-card .ico{font-size:2rem;display:block;margin-bottom:.9rem}
+.sect-card h3{font-size:.9rem;font-weight:700;margin-bottom:.45rem}
+.sect-card p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.sect-tag{display:inline-block;margin-top:.8rem;padding:.26rem .78rem;border-radius:2rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;background:rgba(124,58,237,.12);color:var(--purple-l);border:1px solid rgba(124,58,237,.22)}
+#clientes{text-align:center}
+.cli-grid{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-top:2.8rem}
+.cli-chip{background:var(--card);border:1px solid var(--border);border-radius:.7rem;padding:.7rem 1.4rem;font-size:.8rem;font-weight:600;color:var(--white)}
+#stats{text-align:center}
+.stats-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:2rem;max-width:840px;margin-top:2.8rem;width:100%}
+.st-n{font-size:3.4rem;font-weight:900;color:var(--purple-l);display:block;line-height:1}
+.st-l{color:var(--muted);font-size:.8rem;margin-top:.42rem;letter-spacing:.1em;text-transform:uppercase}
+#cta{text-align:center;background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(124,58,237,.13),transparent)}
+#cta h2{font-size:clamp(2.2rem,5vw,4.4rem);font-weight:900;max-width:800px;line-height:1.08}
+#cta h2 span{color:var(--purple-l)}
+.cta-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:2.4rem}
+.contacts{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;margin-top:2.2rem;color:var(--muted);font-size:.86rem}
+.contacts a{color:var(--muted);text-decoration:none;transition:color .3s}
+.contacts a:hover{color:var(--purple-l)}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.76rem;color:var(--muted)}
+.f-logo{font-weight:800;color:var(--white);font-size:.9rem}
+.f-logo span{color:var(--purple-l)}
+.f-links{display:flex;gap:1.4rem;flex-wrap:wrap}
+.f-links a{color:var(--muted);text-decoration:none;transition:color .3s}
+.f-links a:hover{color:var(--white)}
+#play-overlay{position:fixed;inset:0;z-index:500;background:rgba(6,2,15,.97);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:auto;transition:opacity 1s ease}
+.play-inner{max-width:580px;padding:2rem}
+.play-eye{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--purple-l);display:block;margin-bottom:1.5rem}
+.play-title{font-size:clamp(2.8rem,6vw,5rem);font-weight:900;line-height:1.05;margin-bottom:1.1rem}
+.play-title span{color:var(--purple-l)}
+.play-sub{color:var(--muted);font-size:1rem;line-height:1.72;max-width:420px;margin:0 auto 2.5rem}
+.play-start{display:inline-flex;align-items:center;gap:.9rem;padding:1.1rem 3rem;border-radius:4rem;border:none;background:var(--purple);color:var(--white);font-weight:800;font-size:1.05rem;letter-spacing:.06em;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.play-start:hover{transform:scale(1.06);box-shadow:0 0 55px rgba(124,58,237,.44)}
+.play-hint{margin-top:1.4rem;color:var(--muted);font-size:.76rem;letter-spacing:.1em}
+.play-start-wrap{position:relative;display:inline-block;margin-bottom:2.5rem}
+.pulse-ring{position:absolute;inset:-10px;border-radius:4rem;border:1px solid var(--purple-l);opacity:.5;animation:pulseRing 2s ease-out infinite;pointer-events:none}
+@keyframes pulseRing{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.12);opacity:0}}
+#audio-ctrl{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;align-items:center;gap:.35rem;opacity:0;pointer-events:none;transition:opacity .4s}
+#audio-ctrl.visible{opacity:1;pointer-events:auto}
+.ctrl-wrap{position:relative;width:56px;height:56px}
+.ring-svg{position:absolute;width:56px;height:56px;top:0;left:0;transform:rotate(-90deg);pointer-events:none}
+.ring-bg{fill:none;stroke:rgba(124,58,237,.14);stroke-width:3}
+.ring-fill{fill:none;stroke:var(--purple-l);stroke-width:3;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8}
+#toggle-btn{width:56px;height:56px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+#toggle-btn:hover{background:rgba(124,58,237,.18);transform:scale(1.06)}
+#audio-time{font-size:.68rem;color:var(--muted);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+#mute-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+#mute-btn:hover{background:rgba(124,58,237,.18);transform:scale(1.06)}
+#mute-btn.muted{color:#ef4444;border-color:rgba(239,68,68,.35)}
+#tour-nav{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:400;opacity:0;pointer-events:none;transition:opacity .4s}
+#tour-nav.visible{opacity:1;pointer-events:auto}
+#nav-panel{position:absolute;left:0;top:50%;transform:translateY(-50%) translateX(calc(-100% - 1px));background:rgba(6,2,15,.9);border:1px solid rgba(124,58,237,.2);border-left:none;border-radius:0 14px 14px 0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:.65rem 0;min-width:200px;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+#tour-nav.open #nav-panel{transform:translateY(-50%) translateX(0)}
+#nav-toggle{position:absolute;left:0;top:50%;transform:translateY(-50%);width:22px;height:50px;background:rgba(6,2,15,.85);border:1px solid rgba(124,58,237,.24);border-left:none;border-radius:0 8px 8px 0;color:var(--purple-l);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:left .35s cubic-bezier(.4,0,.2,1),background .2s;padding:0}
+#nav-toggle:hover{background:rgba(124,58,237,.12)}
+#tour-nav.open #nav-toggle{left:200px}
+.nav-label{font-size:.55rem;letter-spacing:.32em;text-transform:uppercase;color:var(--purple-l);padding:.1rem 1.15rem .65rem;display:block}
+#nav-list{list-style:none}
+#nav-list li button{width:100%;text-align:left;padding:.46rem 1.15rem;background:none;border:none;color:var(--muted);font-size:.75rem;letter-spacing:.03em;cursor:pointer;transition:color .18s,background .18s,padding-left .18s;display:flex;align-items:center;gap:.55rem}
+#nav-list li button:hover{color:var(--white);background:rgba(124,58,237,.08);padding-left:1.5rem}
+#nav-list li button.active{color:var(--purple-l)}
+#nav-list li button .nd{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.nav-sep{height:1px;background:rgba(124,58,237,.12);margin:.38rem .9rem}
+@media(max-width:768px){.mod-card{grid-template-columns:1fr;gap:2rem}.mod-vis{height:220px}.ben-cols{grid-template-columns:1fr}footer{justify-content:center;text-align:center}}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div id="topbar">
+  <a class="tb-logo" href="index.html">Soft<span>Capture</span>&reg;</a>
+  <span class="tb-tag">DMS</span>
+  <a class="tb-back" href="index.html">
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Volver al inicio
+  </a>
+</div>
+
+<div id="play-overlay">
+  <div class="play-inner">
+    <span class="play-eye">SoftCapture &middot; DMS &middot; Recorrido Guiado</span>
+    <h2 class="play-title">Todos tus documentos.<br><span>Bajo control.</span></h2>
+    <p class="play-sub">Captura, clasifica, aprueba y archiva cualquier documento de forma autom&aacute;tica desde la nube &mdash; f&iacute;sicos o digitales.</p>
+    <div class="play-start-wrap">
+      <div class="pulse-ring"></div>
+      <button class="play-start" id="start-btn">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Iniciar recorrido
+      </button>
+    </div>
+    <p class="play-hint">&#x1F50A; Activa el volumen para la experiencia completa</p>
+  </div>
+</div>
+
+<div id="audio-ctrl">
+  <div class="ctrl-wrap">
+    <svg class="ring-svg" viewBox="0 0 56 56">
+      <circle class="ring-bg" cx="28" cy="28" r="24"/>
+      <circle class="ring-fill" cx="28" cy="28" r="24" id="ring-circle"/>
+    </svg>
+    <button id="toggle-btn" title="Pausar / Reanudar"></button>
+  </div>
+  <span id="audio-time">0:00</span>
+  <button id="mute-btn" title="Silenciar"></button>
+</div>
+
+<nav id="tour-nav">
+  <div id="nav-panel">
+    <span class="nav-label">DMS Documental</span>
+    <ul id="nav-list">
+      <li><button data-section="hero"><span class="nd"></span>Inicio</button></li>
+      <li><button data-section="problema"><span class="nd"></span>El Problema</button></li>
+      <li class="nav-sep" role="separator"></li>
+      <li><button data-section="slide-0"><span class="nd"></span>Plataforma</button></li>
+      <li><button data-section="slide-1"><span class="nd"></span>Captura &amp; Org.</button></li>
+      <li><button data-section="slide-2"><span class="nd"></span>ECM &amp; &Iacute;ndex</button></li>
+      <li><button data-section="slide-3"><span class="nd"></span>Workflow</button></li>
+      <li><button data-section="slide-4"><span class="nd"></span>Repositorio</button></li>
+      <li class="nav-sep" role="separator"></li>
+      <li><button data-section="beneficios"><span class="nd"></span>Beneficios</button></li>
+      <li><button data-section="sectores"><span class="nd"></span>Sectores</button></li>
+      <li><button data-section="clientes"><span class="nd"></span>Clientes</button></li>
+      <li><button data-section="stats"><span class="nd"></span>En N&uacute;meros</button></li>
+      <li><button data-section="cta"><span class="nd"></span>Contacto</button></li>
+    </ul>
+  </div>
+  <button id="nav-toggle" title="Men&uacute;">
+    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+  </button>
+</nav>
+
+<!-- HERO -->
+<div class="panel" id="hero">
+  <div class="hero-badge"><span>&#x1F4C2;</span> DMS &mdash; Document Manager System</div>
+  <span class="eyebrow" id="hero-eye">Gesti&oacute;n documental cloud &middot; Suite VirtualFile</span>
+  <h1 class="big" id="hero-h1" style="text-align:center">
+    Captura, aprueba,<br>
+    <span class="acc">archiva sin esfuerzo</span>
+  </h1>
+  <p class="sub" style="text-align:center" id="hero-sub">
+    DMS de SoftCapture es la soluci&oacute;n cloud que permite la administraci&oacute;n completa
+    de toda la documentaci&oacute;n que circula en tu empresa &mdash; f&iacute;sica o digital &mdash;
+    con acceso en tiempo real para cada usuario autorizado.
+  </p>
+  <div class="hero-btns" id="hero-btns">
+    <a href="https://softcapture-usa.com/dms-1-1" target="_blank" class="btn btn-p">Conocer el DMS</a>
+    <a href="https://softcapture-usa.com/contacto" target="_blank" class="btn btn-o">Solicitar demo</a>
+  </div>
+  <div class="scroll-hint" id="sh"><span>Descubrir</span><div class="s-line"></div></div>
+</div>
+
+<!-- PROBLEMA -->
+<div class="panel" id="problema">
+  <div class="content" style="max-width:1040px;width:100%">
+    <span class="eyebrow">El desaf&iacute;o</span>
+    <h2 class="big" style="font-size:clamp(2rem,4.5vw,3.5rem);text-align:center">
+      &iquest;C&oacute;mo manejas<br>la <span class="acc">documentaci&oacute;n de tu empresa?</span>
+    </h2>
+    <div class="prob-grid">
+      <div class="p-card">
+        <span class="ico">&#x1F5C3;&#xFE0F;</span>
+        <h3>Archivo f&iacute;sico desbordado</h3>
+        <p>Metros lineales de papel que ocupan espacio, se da&ntilde;an y son imposibles de buscar.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F50D;</span>
+        <h3>B&uacute;squeda lenta</h3>
+        <p>Encontrar un documento tarda horas porque no existe un &iacute;ndice digital centralizado.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F512;</span>
+        <h3>Sin control de acceso</h3>
+        <p>Cualquier empleado puede ver documentos confidenciales sin ning&uacute;n tipo de perfil de seguridad.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x231B;</span>
+        <h3>Aprobaciones lentas</h3>
+        <p>Documentos que esperan d&iacute;as una firma o revisi&oacute;n porque no hay un flujo digital.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULOS HORIZONTAL -->
+<div class="h-track-outer" id="products-outer">
+  <div class="h-track-inner">
+    <div class="h-track-slides" id="products-slides">
+
+      <!-- INTRO -->
+      <div class="h-slide">
+        <div class="intro-slide">
+          <span class="eyebrow">4 funciones del DMS</span>
+          <h2 class="big">Una plataforma.<br><span class="acc">Cuatro poderes.</span></h2>
+          <p class="sub" style="text-align:center;margin:1.2rem auto 0">Desliza para descubrir cada componente del sistema.</p>
+          <span class="arrow-anim">&#8594;</span>
+        </div>
+      </div>
+
+      <!-- 01 CAPTURA -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">01 &middot; Funci&oacute;n</p>
+            <h2 class="mod-name">Captura &amp; <span style="color:var(--purple-l)">Organizaci&oacute;n</span></h2>
+            <p class="mod-desc">Automatiza la entrada de documentos desde cualquier fuente: esc&aacute;neres, correo, USB, web o sistemas externos. El DMS los reconoce, clasifica y deriva autom&aacute;ticamente.</p>
+            <ul class="feats">
+              <li>Procesamiento de cualquier tipo de documento</li>
+              <li>Estructurado, semiestructurado o sin estructura</li>
+              <li>F&iacute;sico o digital indistintamente</li>
+              <li>Reconocimiento autom&aacute;tico y derivaci&oacute;n al &aacute;rea que corresponda</li>
+              <li>Validaciones autom&aacute;ticas contra base de datos</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(124,58,237,.35)">
+            <div class="mod-orb" style="background:var(--purple);top:-80px;right:-80px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- fuentes entrada -->
+              <rect x="20"  y="52" width="50" height="34" rx="7" fill="rgba(124,58,237,.12)" stroke="#a78bfa" stroke-width="1.1"/>
+              <text x="45"  y="72" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">ESCÁNER</text>
+              <rect x="20"  y="110" width="50" height="34" rx="7" fill="rgba(124,58,237,.12)" stroke="#a78bfa" stroke-width="1.1"/>
+              <text x="45"  y="130" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">&#x2709; CORREO</text>
+              <rect x="20"  y="168" width="50" height="34" rx="7" fill="rgba(124,58,237,.12)" stroke="#a78bfa" stroke-width="1.1"/>
+              <text x="45"  y="188" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">&#x1F4F1; DIGITAL</text>
+              <!-- flechas -->
+              <line x1="72"  y1="69"  x2="108" y2="105" stroke="#a78bfa" stroke-width="1.1" stroke-dasharray="3 3" opacity=".7"/>
+              <line x1="72"  y1="127" x2="108" y2="127" stroke="#a78bfa" stroke-width="1.3" opacity=".8"/>
+              <line x1="72"  y1="185" x2="108" y2="149" stroke="#a78bfa" stroke-width="1.1" stroke-dasharray="3 3" opacity=".7"/>
+              <!-- DMS box central -->
+              <rect x="108" y="90" width="80" height="74" rx="12" fill="rgba(124,58,237,.22)" stroke="#a78bfa" stroke-width="1.6"/>
+              <text x="148" y="120" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="bold" font-family="monospace">DMS</text>
+              <text x="148" y="133" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">AUTO-CLASIFICA</text>
+              <text x="148" y="145" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">Y VALIDA</text>
+              <!-- salida áreas -->
+              <line x1="188" y1="115" x2="220" y2="85"  stroke="#a78bfa" stroke-width="1.1" stroke-dasharray="3 3" opacity=".7"/>
+              <line x1="188" y1="127" x2="220" y2="127" stroke="#a78bfa" stroke-width="1.3" opacity=".8"/>
+              <line x1="188" y1="139" x2="220" y2="165" stroke="#a78bfa" stroke-width="1.1" stroke-dasharray="3 3" opacity=".7"/>
+              <circle cx="224" cy="85"  r="12" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="224" cy="85" y="89" text-anchor="middle" fill="#a78bfa" font-size="6" font-family="monospace">Área 1</text>
+              <circle cx="224" cy="127" r="12" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="224" cy="127" y="131" text-anchor="middle" fill="#a78bfa" font-size="6" font-family="monospace">Área 2</text>
+              <circle cx="224" cy="165" r="12" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="224" cy="165" y="169" text-anchor="middle" fill="#a78bfa" font-size="6" font-family="monospace">Área 3</text>
+              <!-- punto animado -->
+              <circle r="4" fill="#a78bfa" opacity=".9">
+                <animateMotion dur="3s" repeatCount="indefinite" path="M45,127 L148,127"/>
+              </circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 ECM -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">02 &middot; Funci&oacute;n</p>
+            <h2 class="mod-name">ECM &amp; <span style="color:var(--purple-l)">&Iacute;ndex Inteligente</span></h2>
+            <p class="mod-desc">Toma la informaci&oacute;n de documentos previamente capturados, los clasifica e indexa. &Aacute;ccess en tiempo real digitando cualquier variable: RUT, nombre empresa, fecha, etc.</p>
+            <ul class="feats">
+              <li>Enterprise Content Management completo</li>
+              <li>Indexaci&oacute;n por cualquier campo (RUT, nombre, fecha, folio)</li>
+              <li>B&uacute;squeda instant&aacute;nea en millisegundos</li>
+              <li>Acceso controlado seg&uacute;n perfil de usuario</li>
+              <li>Integraci&oacute;n con correo y sistemas empresariales</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(124,58,237,.35)">
+            <div class="mod-orb" style="background:var(--purple-d);bottom:-60px;left:-60px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- barra búsqueda -->
+              <rect x="30" y="38" width="200" height="22" rx="11" fill="rgba(124,58,237,.1)" stroke="#a78bfa" stroke-width="1.2"/>
+              <text x="125" y="53" text-anchor="middle" fill="#a78bfa" font-size="7" font-family="monospace">RUT: 12.345.678-9</text>
+              <circle cx="218" cy="49" r="8" fill="rgba(124,58,237,.25)" stroke="#a78bfa" stroke-width="1"/>
+              <line x1="215" y1="46" x2="222" y2="53" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="213" cy="44" r="4" fill="none" stroke="#a78bfa" stroke-width="1.3"/>
+              <!-- resultados -->
+              <rect x="30" y="72" width="200" height="28" rx="7" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width="1.2"/>
+              <text x="130" y="87" text-anchor="middle" fill="#a78bfa" font-size="7.5" font-weight="bold" font-family="monospace">&#x1F4C4; Contrato_2024.pdf</text>
+              <rect x="30" y="108" width="200" height="28" rx="7" fill="rgba(124,58,237,.1)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="130" y="123" text-anchor="middle" fill="#a78bfa" font-size="7" font-family="monospace">&#x1F4C4; Liquidacion_Agosto.pdf</text>
+              <rect x="30" y="144" width="200" height="28" rx="7" fill="rgba(124,58,237,.1)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="130" y="159" text-anchor="middle" fill="#a78bfa" font-size="7" font-family="monospace">&#x1F4C4; Factura_Noviembre.pdf</text>
+              <!-- tags índice -->
+              <rect x="30"  y="188" width="50" height="16" rx="8" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="55"  y="199" text-anchor="middle" fill="#a78bfa" font-size="6" font-family="monospace">RUT</text>
+              <rect x="88"  y="188" width="60" height="16" rx="8" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="118" y="199" text-anchor="middle" fill="#a78bfa" font-size="6" font-family="monospace">EMPRESA</text>
+              <rect x="156" y="188" width="50" height="16" rx="8" fill="rgba(124,58,237,.18)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="181" y="199" text-anchor="middle" fill="#a78bfa" font-size="6" font-family="monospace">FECHA</text>
+              <!-- indicador rápido -->
+              <text x="130" y="230" text-anchor="middle" fill="rgba(124,58,237,.6)" font-size="7" font-family="monospace">Resultado en &lt;200ms</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 WORKFLOW DOCUMENTAL -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">03 &middot; Funci&oacute;n</p>
+            <h2 class="mod-name">Workflow de <span style="color:var(--purple-l)">Aprobaci&oacute;n</span></h2>
+            <p class="mod-desc">La informaci&oacute;n capturada pasa por un workflow configurable: cada documento puede ser aprobado, rechazado o cuestionado online, dejando registro de cada actividad.</p>
+            <ul class="feats">
+              <li>Programaci&oacute;n de revisi&oacute;n por &aacute;rea responsable</li>
+              <li>Aprobaci&oacute;n, rechazo o cuestionamiento online</li>
+              <li>Sistema de alarmas de pendientes</li>
+              <li>Control de responsables para cada etapa</li>
+              <li>Registro completo de toda la actividad</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(124,58,237,.35)">
+            <div class="mod-orb" style="background:var(--purple);top:-60px;right:-60px"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- doc -->
+              <rect x="95" y="22" width="70" height="88" rx="7" fill="rgba(124,58,237,.12)" stroke="#a78bfa" stroke-width="1.3"/>
+              <line x1="108" y1="45" x2="152" y2="45" stroke="#a78bfa" stroke-width="1" opacity=".5"/>
+              <line x1="108" y1="57" x2="152" y2="57" stroke="#a78bfa" stroke-width="1" opacity=".5"/>
+              <line x1="108" y1="69" x2="140" y2="69" stroke="#a78bfa" stroke-width="1" opacity=".4"/>
+              <text x="130" y="94" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">DOCUMENTO</text>
+              <line x1="130" y1="110" x2="130" y2="128" stroke="#a78bfa" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <!-- estado 1 -->
+              <rect x="70" y="128" width="120" height="24" rx="7" fill="rgba(245,158,11,.1)" stroke="#f59e0b" stroke-width="1.1"/>
+              <text x="130" y="143" text-anchor="middle" fill="#f59e0b" font-size="7" font-family="monospace">&#x23F3; REVISIÓN PENDIENTE</text>
+              <line x1="130" y1="152" x2="130" y2="168" stroke="#a78bfa" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <!-- estado 2 aprobado -->
+              <rect x="70" y="168" width="120" height="24" rx="7" fill="rgba(124,58,237,.2)" stroke="#a78bfa" stroke-width="1.3"/>
+              <text x="130" y="183" text-anchor="middle" fill="#a78bfa" font-size="7" font-family="monospace">&#x270D; APROBADO</text>
+              <line x1="130" y1="192" x2="130" y2="208" stroke="#a78bfa" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <!-- estado final OK -->
+              <rect x="88" y="208" width="84" height="24" rx="12" fill="rgba(52,211,153,.18)" stroke="#34d399" stroke-width="1.4"/>
+              <text x="130" y="223" text-anchor="middle" fill="#34d399" font-size="7.5" font-weight="bold" font-family="monospace">&#10004; ARCHIVADO</text>
+              <!-- punto animado descendiente -->
+              <circle r="4" fill="#a78bfa" opacity=".85">
+                <animateMotion dur="2.8s" repeatCount="indefinite" path="M130,22 L130,220"/>
+              </circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 REPOSITORIO -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">04 &middot; Funci&oacute;n</p>
+            <h2 class="mod-name">Repositorio <span style="color:var(--purple-l)">Cloud</span></h2>
+            <p class="mod-desc">Almacenamiento de im&aacute;genes de documentos en la nube con compresi&oacute;n inteligente, reduciendo el espacio f&iacute;sico a cero. Acceso compartido, seguro y en tiempo real.</p>
+            <ul class="feats">
+              <li>Almacenamiento cloud con alta disponibilidad</li>
+              <li>Reducci&oacute;n dr&aacute;stica del espacio f&iacute;sico de archivo</li>
+              <li>Imagen del documento siempre disponible</li>
+              <li>Acceso en l&iacute;nea por distintos usuarios a la vez</li>
+              <li>Salida en m&uacute;ltiples formatos: XML, TIFF, JPG, PNG, BMP</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(124,58,237,.35)">
+            <div class="mod-orb" style="background:var(--purple-l);bottom:-60px;left:-60px;opacity:.1"></div>
+            <svg viewBox="0 0 260 260" width="220" fill="none">
+              <!-- nube -->
+              <path d="M75 155 Q55 155 55 135 Q55 118 72 115 Q72 95 90 90 Q110 82 125 95 Q135 82 152 88 Q175 88 175 110 Q190 112 190 130 Q190 155 170 155 Z" fill="rgba(124,58,237,.12)" stroke="#a78bfa" stroke-width="1.4"/>
+              <!-- iconos docs en la nube -->
+              <rect x="90"  y="110" width="24" height="30" rx="4" fill="rgba(124,58,237,.25)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="102" y="129" text-anchor="middle" fill="#a78bfa" font-size="7" font-family="monospace">PDF</text>
+              <rect x="120" y="108" width="24" height="30" rx="4" fill="rgba(124,58,237,.25)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="132" y="127" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">XML</text>
+              <rect x="150" y="112" width="24" height="30" rx="4" fill="rgba(124,58,237,.2)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="162" y="131" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">TIFF</text>
+              <!-- usuarios acceso -->
+              <circle cx="75"  cy="210" r="18" fill="rgba(124,58,237,.1)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="75"  y="214" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">User 1</text>
+              <circle cx="130" cy="212" r="18" fill="rgba(124,58,237,.1)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="130" y="216" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">User 2</text>
+              <circle cx="185" cy="210" r="18" fill="rgba(124,58,237,.1)" stroke="#a78bfa" stroke-width="1"/>
+              <text x="185" y="214" text-anchor="middle" fill="#a78bfa" font-size="6.5" font-family="monospace">User 3</text>
+              <!-- flechas desde nube a usuarios -->
+              <line x1="90"  y1="165" x2="80"  y2="192" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>
+              <line x1="130" y1="163" x2="130" y2="194" stroke="#a78bfa" stroke-width="1.1" stroke-dasharray="3 3" opacity=".8"/>
+              <line x1="168" y1="165" x2="178" y2="192" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>
+              <!-- texto compresión -->
+              <text x="130" y="42" text-anchor="middle" fill="rgba(167,139,250,.55)" font-size="6.5" font-family="monospace">CLOUD STORAGE — ALTA DISPONIBILIDAD</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- BENEFICIOS -->
+<div class="panel" id="beneficios">
+  <span class="eyebrow">Beneficios comprobados</span>
+  <h2 class="big" style="font-size:clamp(1.9rem,4.5vw,3.6rem);text-align:center">M&aacute;s producci&oacute;n, <span class="acc">menos papel</span></h2>
+  <div class="ben-cols">
+    <div class="ben-col">
+      <span class="ben-col-title">Beneficios Cuantitativos</span>
+      <div class="ben-item">
+        <div class="ben-icon">&#x23F1;&#xFE0F;</div>
+        <div><h4>Menos tiempo de ingreso</h4><p>La captura autom&aacute;tica reemplaza horas de digitaci&oacute;n manual por segundos de procesamiento.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F4B0;</div>
+        <div><h4>Ahorro de recursos</h4><p>Menos espacio f&iacute;sico, impresiones, courier y personal dedicado a archivo.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F4CA;</div>
+        <div><h4>Mayor productividad</h4><p>Empleados enfocados en el negocio, no en buscar carpetas o fotocopiar documentos.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F3ED;</div>
+        <div><h4>Espacio liberado</h4><p>Todo el archivo f&iacute;sico pasa a ser im&aacute;genes digitales: cero metros de papeler&iacute;a.</p></div>
+      </div>
+    </div>
+    <div class="ben-col">
+      <span class="ben-col-title">Beneficios Cualitativos</span>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F4A1;</div>
+        <div><h4>Informaci&oacute;n en tiempo real</h4><p>Cualquier documento disponible al instante para quien lo necesite, donde est&eacute;.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F91D;</div>
+        <div><h4>Mejor relaci&oacute;n con clientes</h4><p>Respuestas m&aacute;s &aacute;giles gracias a documentos accesibles al momento.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x2705;</div>
+        <div><h4>Mayor calidad de informaci&oacute;n</h4><p>Validaciones autom&aacute;ticas eliminan errores de ingreso manual y duplicados.</p></div>
+      </div>
+      <div class="ben-item">
+        <div class="ben-icon">&#x1F6E1;&#xFE0F;</div>
+        <div><h4>Protecci&oacute;n de documentos</h4><p>Im&aacute;genes digitales no se da&ntilde;an, no se pierden y est&aacute;n siempre respaldadas.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTORES -->
+<div class="panel" id="sectores">
+  <span class="eyebrow">Sectores objetivo</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3rem)">Ideal para <span class="acc">industrias documentalmente intensivas</span></h2>
+  <div class="sect-grid">
+    <div class="sect-card"><span class="ico">&#x1F3E6;</span><h3>Bancos &amp; Financiero</h3><p>Contratos, p&oacute;lizas, garrant&iacute;as y documentos regulatorios con acceso estructurado.</p><span class="sect-tag">Banca</span></div>
+    <div class="sect-card"><span class="ico">&#x1F3E5;</span><h3>Salud &amp; Cl&iacute;nicas</h3><p>Fichas de pacientes, resultados de ex&aacute;menes e historiales m&eacute;dicos digitalizados.</p><span class="sect-tag">Salud</span></div>
+    <div class="sect-card"><span class="ico">&#x1F4DA;</span><h3>Educaci&oacute;n</h3><p>Registro acad&eacute;mico, t&iacute;tulos, calificaciones y documentos de cada alumno.</p><span class="sect-tag">Educaci&oacute;n</span></div>
+    <div class="sect-card"><span class="ico">&#x1F4CB;</span><h3>Seguros &amp; AFPs</h3><p>P&oacute;lizas, siniestros y documentos de afiliados indexados y accesibles de inmediato.</p><span class="sect-tag">Seguros</span></div>
+    <div class="sect-card"><span class="ico">&#x1F3D8;&#xFE0F;</span><h3>Propiedades &amp; Legal</h3><p>Escrituras, contratos y documentos notariales organizados y firmados digitalmente.</p><span class="sect-tag">Legal</span></div>
+    <div class="sect-card"><span class="ico">&#x1F4BC;</span><h3>Empresas en general</h3><p>Cualquier empresa que procese documentos internos, con clientes o proveedores.</p><span class="sect-tag">General</span></div>
+  </div>
+</div>
+
+<!-- CLIENTES -->
+<div class="panel" id="clientes">
+  <span class="eyebrow">Casos de &eacute;xito</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3rem)">Empresas que <span class="acc">ya digitalizaron sus archivos</span></h2>
+  <div class="cli-grid">
+    <div class="cli-chip">Banco de Chile</div>
+    <div class="cli-chip">Coopeuch</div>
+    <div class="cli-chip">Hospital Cl&iacute;nico de Santiago</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="panel" id="stats">
+  <span class="eyebrow">DMS en n&uacute;meros</span>
+  <div class="stats-g">
+    <div><span class="st-n" data-target="21">0</span><p class="st-l">A&ntilde;os de experiencia</p></div>
+    <div><span class="st-n" data-target="4">0</span><p class="st-l">Funciones integradas</p></div>
+    <div><span class="st-n" data-target="90">0</span><p class="st-l">% Reducci&oacute;n de tiempos</p></div>
+    <div><span class="st-n" data-target="120">0</span><p class="st-l">Clientes activos</p></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="panel" id="cta">
+  <span class="eyebrow">&iquest;Listo para eliminar el papel de tu empresa?</span>
+  <h2>Tu documentaci&oacute;n,<br><span>organizada y segura.</span></h2>
+  <p class="sub" style="text-align:center;margin:1.2rem auto 0">Solicita una demo del DMS y ve en vivo c&oacute;mo SoftCapture transforma tu archivo f&iacute;sico en un repositorio digital inteligente.</p>
+  <div class="cta-btns">
+    <a href="mailto:contacto@softcapture-usa.com?subject=Demo%20DMS" class="btn btn-p" style="font-size:1rem;padding:1rem 2.5rem">Solicitar demo gratuita</a>
+    <a href="https://softcapture-usa.com/dms-1-1" target="_blank" class="btn btn-o">Ver m&aacute;s sobre el DMS</a>
+  </div>
+  <div class="contacts">
+    <a href="tel:17866730858">&#x1F4DE; (1) 786 673 0858</a>
+    <a href="tel:56229380194">&#x1F4DE; (56) 229 380 194</a>
+    <a href="mailto:contacto@softcapture-usa.com">&#x2709;&#xFE0F; contacto@softcapture-usa.com</a>
+  </div>
+</div>
+
+<footer>
+  <span class="f-logo">Soft<span>Capture</span>&reg;</span>
+  <div class="f-links">
+    <a href="index.html">&#x2190; Centro de presentaciones</a>
+    <a href="https://softcapture-usa.com/dms-1-1" target="_blank">DMS</a>
+    <a href="https://softcapture-usa.com/productos" target="_blank">Productos</a>
+    <a href="https://softcapture-usa.com/contacto" target="_blank">Contacto</a>
+  </div>
+  <span>&copy; 2026 SoftCapture&reg; &middot; Todos los derechos reservados.</span>
+</footer>
+
+<script>
+(function(){
+  var overlay=document.getElementById('play-overlay'),ctrl=document.getElementById('audio-ctrl'),topbar=document.getElementById('topbar'),toggleBtn=document.getElementById('toggle-btn'),ringEl=document.getElementById('ring-circle'),timeEl=document.getElementById('audio-time'),audio=new Audio('audio/Untitled.mp3');
+  audio.volume=0.2;
+  var CIRC=2*Math.PI*24,TOUR_MS=180000,playing=false,autoScroll=false,rafId=null,tourStart=null,pauseStart=null,totalPaused=0;
+  var maxScroll=function(){return document.documentElement.scrollHeight-window.innerHeight};
+  var getProgress=function(){if(!tourStart)return 0;var p=totalPaused+(pauseStart?Date.now()-pauseStart:0);return Math.min((Date.now()-tourStart-p)/TOUR_MS,1)};
+  var fmtTime=function(s){return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+  var updateUI=function(pct){ringEl.style.strokeDashoffset=CIRC-pct*CIRC;timeEl.textContent=fmtTime(pct*TOUR_MS/1000)};
+  var setIcon=function(p){toggleBtn.innerHTML=p?'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'};
+  function tick(){if(!autoScroll)return;var pct=getProgress();window.scrollTo(0,pct*maxScroll());updateUI(pct);document.getElementById('prog').style.width=(pct*100)+'%';if(pct<1){rafId=requestAnimationFrame(tick)}else{autoScroll=false;playing=false;cancelAnimationFrame(rafId);setIcon(false);updateUI(1)}}
+  document.getElementById('start-btn').addEventListener('click',function(){
+    audio.currentTime=0;audio.play().catch(function(e){console.warn(e)});
+    window.scrollTo({top:0,behavior:'instant'});tourStart=Date.now();totalPaused=0;pauseStart=null;autoScroll=true;playing=true;setIcon(true);requestAnimationFrame(tick);
+    overlay.style.transition='opacity 1s ease';overlay.style.opacity='0';overlay.style.pointerEvents='none';
+    setTimeout(function(){overlay.style.display='none'},1050);
+    setTimeout(function(){ctrl.classList.add('visible');topbar.classList.add('visible');document.getElementById('tour-nav').classList.add('visible')},700);
+  });
+  toggleBtn.addEventListener('click',function(){
+    if(playing){audio.pause();pauseStart=Date.now();autoScroll=false;cancelAnimationFrame(rafId);playing=false;setIcon(false)}
+    else{if(pauseStart){totalPaused+=Date.now()-pauseStart;pauseStart=null}audio.play().catch(function(e){console.warn(e)});autoScroll=true;playing=true;setIcon(true);requestAnimationFrame(tick)}
+  });
+  var wheelTimer;
+  window.addEventListener('wheel',function(){if(!playing)return;if(!pauseStart)pauseStart=Date.now();autoScroll=false;cancelAnimationFrame(rafId);clearTimeout(wheelTimer);wheelTimer=setTimeout(function(){if(playing){totalPaused+=Date.now()-pauseStart;pauseStart=null;autoScroll=true;requestAnimationFrame(tick)}},2000)},{passive:true});
+  window._tourJump=function(targetY){if(!tourStart)return;var ms=document.documentElement.scrollHeight-window.innerHeight;var pct=ms>0?Math.max(0,Math.min(1,targetY/ms)):0;if(pauseStart){totalPaused+=Date.now()-pauseStart;pauseStart=null}tourStart=Date.now()-totalPaused-pct*TOUR_MS;window.scrollTo({top:targetY,behavior:'smooth'})};
+  var muteBtn=document.getElementById('mute-btn'),isMuted=false;
+  function setMuteIcon(m){muteBtn.innerHTML=m?'<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 19L19 20.27 20.27 19 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>':'<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';m?muteBtn.classList.add('muted'):muteBtn.classList.remove('muted')}
+  muteBtn.addEventListener('click',function(){isMuted=!isMuted;audio.muted=isMuted;setMuteIcon(isMuted)});
+  setMuteIcon(false);setIcon(false);
+})();
+(function(){
+  document.getElementById('nav-toggle').addEventListener('click',function(){document.getElementById('tour-nav').classList.toggle('open')});
+  document.querySelectorAll('#nav-list button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sec=this.dataset.section,targetY=0;
+      if(sec.startsWith('slide-')){var idx=parseInt(sec.replace('slide-',''),10),outer=document.getElementById('products-outer'),slides=document.getElementById('products-slides'),cnt=slides?slides.querySelectorAll('.h-slide').length:5,dist=window.innerWidth*(cnt-1);targetY=outer.offsetTop+(cnt>1?(idx/(cnt-1))*dist:0)}
+      else{var el=document.getElementById(sec);if(el)targetY=el.offsetTop}
+      if(window._tourJump)window._tourJump(targetY);else window.scrollTo({top:targetY,behavior:'smooth'});
+      document.getElementById('tour-nav').classList.remove('open');
+    });
+  });
+})();
+try{gsap.registerPlugin(ScrollTrigger)}catch(e){}
+gsap.from('#hero-badge',{opacity:0,y:14,duration:.65,delay:.35});
+gsap.from('#hero-eye',{opacity:0,y:18,duration:.8,delay:.55});
+gsap.from('#hero-h1',{opacity:0,y:44,duration:1,delay:.8,ease:'power3.out'});
+gsap.from('#hero-sub',{opacity:0,y:28,duration:.9,delay:1.05,ease:'power3.out'});
+gsap.from('#hero-btns',{opacity:0,y:18,duration:.75,delay:1.25});
+gsap.from('#sh',{opacity:0,duration:.75,delay:1.65});
+var fu=function(sel,extra){extra=extra||{};gsap.utils.toArray(sel).forEach(function(el,i){gsap.from(el,Object.assign({scrollTrigger:{trigger:el,start:'top 88%'},y:48,opacity:0,duration:.85,ease:'power3.out',delay:i*.1},extra))})};
+fu('.p-card');fu('.ben-item');fu('.sect-card');fu('.cli-chip',{y:20});
+gsap.from('.cta-btns,.contacts',{scrollTrigger:{trigger:'#cta',start:'top 80%'},y:28,opacity:0,stagger:.15,duration:.85});
+gsap.utils.toArray('.st-n').forEach(function(el){var t=+el.dataset.target;ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){var v=0,step=t/65,go=function(){v+=step;if(v<t){el.textContent=Math.ceil(v)+(t>=80?'+':'');requestAnimationFrame(go)}else el.textContent=t+(t>=80?'+':'')};go()}})});
+try{(function(){var outer=document.getElementById('products-outer'),slides=document.getElementById('products-slides'),count=slides.querySelectorAll('.h-slide').length;var getScrollDist=function(){return window.innerWidth*(count-1)};var setHeight=function(){outer.style.height=(getScrollDist()+window.innerHeight)+'px'};setHeight();var tween;function buildTrigger(){if(tween)tween.kill();tween=ScrollTrigger.create({trigger:outer,start:'top top',end:function(){return '+='+getScrollDist()},scrub:1,pin:'.h-track-inner',anticipatePin:1,onUpdate:function(self){gsap.set(slides,{x:-(self.progress*getScrollDist())})}})}buildTrigger();window.addEventListener('resize',function(){setHeight();try{ScrollTrigger.refresh()}catch(e){}})})()}catch(e){console.warn('GSAP:',e)}
+(function(){var cv=document.getElementById('bg-canvas'),cx=cv.getContext('2d'),W,H,pts=[],rid;function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}function Pt(){this.reset=function(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.4+.3;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.a=Math.random()*.4+.12};this.reset()}function init(){pts=[];for(var i=0;i<Math.floor(W*H/11000);i++)pts.push(new Pt())}function draw(){cx.clearRect(0,0,W,H);for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W||p.y<0||p.y>H)p.reset();cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle='rgba(124,58,237,'+p.a+')';cx.fill()}for(var i=0;i<pts.length-1;i++){for(var j=i+1;j<pts.length;j++){var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){cx.beginPath();cx.strokeStyle='rgba(124,58,237,'+(.06*(1-d/90))+')';cx.lineWidth=.45;cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.stroke()}}}rid=requestAnimationFrame(draw)}resize();init();draw();window.addEventListener('resize',function(){cancelAnimationFrame(rid);resize();init();draw()})})();
+window.addEventListener('scroll',function(){try{var d=document.documentElement;document.getElementById('prog').style.width=(d.scrollTop/(d.scrollHeight-window.innerHeight)*100)+'%'}catch(e){}});
+</script>
+</body>
+</html>
