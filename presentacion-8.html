@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Comparativa Comercial &mdash; VirtualFile &mdash; SoftCapture</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07071a;
+  --ind:#6366f1;
+  --ind-d:#4338ca;
+  --ind-l:#a5b4fc;
+  --white:#f5f3ff;
+  --muted:#64748b;
+  --card:rgba(7,7,30,0.94);
+  --border:rgba(99,102,241,0.22);
+}
+html{scroll-behavior:auto}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:rgba(7,7,26,.9);border-bottom:1px solid rgba(99,102,241,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
+#topbar.visible{opacity:1;pointer-events:auto}
+.tb-logo{font-weight:900;font-size:.9rem;text-decoration:none;color:var(--white)}
+.tb-logo span{color:var(--ind-l)}
+.tb-back{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:color .2s}
+.tb-back:hover{color:var(--ind-l)}
+.tb-tag{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ind-l);background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.28);border-radius:2rem;padding:.25rem .8rem}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.18}
+#prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--ind),var(--ind-l));z-index:700}
+.panel{width:100vw;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;overflow:hidden;padding:6rem 2rem}
+.h-track-outer{position:relative;z-index:1}
+.h-track-inner{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;width:100vw}
+.h-track-slides{display:flex;flex-shrink:0;height:100%;will-change:transform}
+.h-slide{width:100vw;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:2rem 5vw}
+.eyebrow{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ind-l);margin-bottom:1rem;display:block;text-align:center}
+.big{font-size:clamp(2.4rem,6vw,5.4rem);font-weight:900;line-height:1.05}
+.acc{color:var(--ind-l)}
+.sub{color:var(--muted);font-size:1rem;line-height:1.78;max-width:560px;margin-top:1.2rem}
+/* hero */
+#hero{background:radial-gradient(ellipse 80% 60% at 55% 35%,rgba(99,102,241,.13),transparent);text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.28);border-radius:2rem;padding:.4rem 1.1rem;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ind-l);margin-bottom:1.8rem}
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:.5rem;color:var(--muted);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;align-items:center}
+.s-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--ind-l),transparent);animation:sp 1.8s ease-in-out infinite}
+@keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+.btn{display:inline-block;padding:.88rem 2.3rem;border-radius:3rem;font-weight:700;font-size:.88rem;letter-spacing:.07em;text-decoration:none;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.btn-i{background:var(--ind);color:#fff}
+.btn-i:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(99,102,241,.4)}
+.btn-o{border:2px solid var(--border);color:var(--white);background:transparent;margin-left:1rem}
+.btn-o:hover{border-color:var(--ind-l);color:var(--ind-l)}
+.hero-btns{margin-top:2.5rem}
+/* desafio */
+.prob-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.4rem;margin-top:3rem}
+.p-card{background:var(--card);border:1px solid rgba(239,68,68,.18);border-radius:1.1rem;padding:1.8rem 1.4rem;text-align:center}
+.p-card .ico{font-size:2rem;display:block;margin-bottom:.85rem}
+.p-card h3{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+.p-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* horizontal */
+.mod-card{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.mod-num{font-size:.7rem;letter-spacing:.42em;color:var(--ind-l);text-transform:uppercase;margin-bottom:.7rem}
+.mod-name{font-size:clamp(1.9rem,3.6vw,3rem);font-weight:900;line-height:1.08;margin-bottom:1.1rem}
+.mod-desc{color:var(--muted);line-height:1.8;font-size:.94rem;margin-bottom:1.6rem}
+.feats{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+.feats li{display:flex;align-items:flex-start;gap:.65rem;font-size:.87rem}
+.feats li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ind-l);margin-top:.4rem;flex-shrink:0}
+.mod-vis{height:380px;border-radius:1.5rem;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mod-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;width:260px;height:260px;opacity:.1}
+.intro-slide{max-width:640px;text-align:center}
+.arrow-anim{margin-top:1.5rem;font-size:2rem;animation:sp 1.5s ease-in-out infinite;display:inline-block;color:var(--ind-l)}
+/* limit */
+.limit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.2rem;margin-top:2.6rem;max-width:900px;width:100%}
+.lim-card{background:var(--card);border:1px solid rgba(251,191,36,.18);border-radius:1rem;padding:1.5rem 1.2rem;text-align:center}
+.lim-card .ico{font-size:1.8rem;display:block;margin-bottom:.7rem}
+.lim-card h3{font-size:.88rem;font-weight:700;margin-bottom:.35rem;color:#fbbf24}
+.lim-card p{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* evolution */
+.evo-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;max-width:1060px;width:100%;margin-top:3rem;align-items:start}
+.evo-box{border-radius:1.2rem;padding:1.8rem;border:1px solid var(--border);background:var(--card)}
+.evo-box.current{border-color:rgba(20,184,166,.28);background:rgba(20,184,166,.04)}
+.evo-box.vf{border-color:rgba(99,102,241,.38);background:rgba(99,102,241,.07)}
+.evo-label{font-size:.6rem;font-weight:800;letter-spacing:.32em;text-transform:uppercase;display:block;margin-bottom:.8rem}
+.evo-box.current .evo-label{color:#5eead4}
+.evo-box.vf .evo-label{color:var(--ind-l)}
+.evo-title{font-size:1.3rem;font-weight:900;margin-bottom:1rem;line-height:1.15}
+.evo-list{list-style:none;display:flex;flex-direction:column;gap:.55rem}
+.evo-list li{font-size:.84rem;display:flex;align-items:flex-start;gap:.55rem;color:var(--muted);line-height:1.5}
+.evo-list li .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.42rem}
+.evo-box.current .dot{background:#5eead4}
+.evo-box.vf .dot{background:var(--ind-l)}
+.evo-arrow{display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:rgba(99,102,241,.4);align-self:center}
+/* decision flow */
+.dec-flow{display:flex;flex-direction:column;align-items:center;gap:.5rem;max-width:640px;width:100%;margin-top:2.5rem}
+.dec-node{width:100%;padding:.9rem 1.4rem;border-radius:.85rem;display:flex;align-items:center;gap:1rem;background:var(--card);border:1px solid var(--border)}
+.dec-node.inp{border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.07)}
+.dec-node.proc{border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.04)}
+.dec-node.out{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07)}
+.dec-ico{font-size:1.4rem;flex-shrink:0}
+.dec-txt h4{font-size:.88rem;font-weight:700;margin-bottom:.18rem}
+.dec-txt p{font-size:.76rem;color:var(--muted);line-height:1.45}
+.dec-arr{color:rgba(99,102,241,.35);font-size:1.2rem;text-align:center}
+/* beneficios */
+.ben-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.4rem;margin-top:3rem;max-width:1000px;width:100%}
+.ben-card{background:var(--card);border:1px solid rgba(99,102,241,.2);border-radius:1.1rem;padding:1.8rem 1.4rem;text-align:center}
+.ben-card .ico{font-size:2rem;display:block;margin-bottom:.85rem}
+.ben-card h3{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--ind-l)}
+.ben-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* mensaje clave */
+#mensaje{text-align:center;background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(99,102,241,.1),transparent)}
+.msg-cards{display:grid;grid-template-columns:1fr 1fr;gap:2rem;max-width:900px;margin-top:3rem;width:100%}
+.msg-card{border-radius:1.2rem;padding:2rem 1.6rem;border:1px solid var(--border);background:var(--card);text-align:left}
+.msg-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+.msg-card p{font-size:.85rem;color:var(--muted);line-height:1.7}
+.msg-arrow{font-size:1.8rem;font-weight:900;color:var(--ind-l)}
+/* stats */
+#stats{text-align:center}
+.stats-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2rem;max-width:840px;margin-top:2.8rem;width:100%}
+.st-n{font-size:3.2rem;font-weight:900;color:var(--ind-l);display:block;line-height:1}
+.st-l{color:var(--muted);font-size:.78rem;margin-top:.42rem;letter-spacing:.1em;text-transform:uppercase}
+/* play overlay */
+#play-overlay{position:fixed;inset:0;z-index:500;background:rgba(7,7,26,.97);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:auto;transition:opacity 1s ease}
+.play-inner{max-width:580px;padding:2rem}
+.play-eye{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ind-l);display:block;margin-bottom:1.5rem}
+.play-title{font-size:clamp(2.6rem,6vw,4.8rem);font-weight:900;line-height:1.05;margin-bottom:1.1rem}
+.play-title span{color:var(--ind-l)}
+.play-sub{color:var(--muted);font-size:1rem;line-height:1.72;max-width:420px;margin:0 auto 2.5rem}
+.play-start{display:inline-flex;align-items:center;gap:.9rem;padding:1.1rem 3rem;border-radius:4rem;border:none;background:var(--ind);color:#fff;font-weight:800;font-size:1.05rem;letter-spacing:.06em;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.play-start:hover{transform:scale(1.06);box-shadow:0 0 55px rgba(99,102,241,.5)}
+.play-hint{margin-top:1.4rem;color:var(--muted);font-size:.76rem;letter-spacing:.1em}
+.play-start-wrap{position:relative;display:inline-block;margin-bottom:2.5rem}
+.pulse-ring{position:absolute;inset:-10px;border-radius:4rem;border:1px solid var(--ind-l);opacity:.5;animation:pulseRing 2s ease-out infinite;pointer-events:none}
+@keyframes pulseRing{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.12);opacity:0}}
+/* audio/nav */
+#audio-ctrl{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;align-items:center;gap:.35rem;opacity:0;pointer-events:none;transition:opacity .4s}
+#audio-ctrl.visible{opacity:1;pointer-events:auto}
+.ctrl-wrap{position:relative;width:56px;height:56px}
+.ring-svg{position:absolute;width:56px;height:56px;top:0;left:0;transform:rotate(-90deg);pointer-events:none}
+.ring-bg{fill:none;stroke:rgba(99,102,241,.14);stroke-width:3}
+.ring-fill{fill:none;stroke:var(--ind-l);stroke-width:3;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8}
+#toggle-btn{width:56px;height:56px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+#toggle-btn:hover{background:rgba(99,102,241,.18);transform:scale(1.06)}
+#audio-time{font-size:.68rem;color:var(--muted);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+#mute-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+#mute-btn:hover{background:rgba(99,102,241,.18);transform:scale(1.06)}
+#mute-btn.muted{color:#ef4444;border-color:rgba(239,68,68,.35)}
+#tour-nav{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:400;opacity:0;pointer-events:none;transition:opacity .4s}
+#tour-nav.visible{opacity:1;pointer-events:auto}
+#nav-panel{position:absolute;left:0;top:50%;transform:translateY(-50%) translateX(calc(-100% - 1px));background:rgba(7,7,26,.92);border:1px solid rgba(99,102,241,.2);border-left:none;border-radius:0 14px 14px 0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:.65rem 0;min-width:240px;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+#tour-nav.open #nav-panel{transform:translateY(-50%) translateX(0)}
+#nav-toggle{position:absolute;left:0;top:50%;transform:translateY(-50%);width:22px;height:50px;background:rgba(7,7,26,.88);border:1px solid rgba(99,102,241,.24);border-left:none;border-radius:0 8px 8px 0;color:var(--ind-l);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:left .35s cubic-bezier(.4,0,.2,1),background .2s;padding:0}
+#nav-toggle:hover{background:rgba(99,102,241,.12)}
+#tour-nav.open #nav-toggle{left:240px}
+.nav-label{font-size:.55rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ind-l);padding:.1rem 1.15rem .65rem;display:block}
+#nav-list{list-style:none}
+#nav-list li button{width:100%;text-align:left;padding:.46rem 1.15rem;background:none;border:none;color:var(--muted);font-size:.75rem;letter-spacing:.03em;cursor:pointer;transition:color .18s,background .18s,padding-left .18s;display:flex;align-items:center;gap:.55rem}
+#nav-list li button:hover{color:var(--white);background:rgba(99,102,241,.08);padding-left:1.5rem}
+#nav-list li button.active{color:var(--ind-l)}
+#nav-list li button .nd{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.nav-sep{height:1px;background:rgba(99,102,241,.12);margin:.38rem .9rem}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;font-size:.76rem;color:var(--muted)}
+.f-logo{font-weight:800;color:var(--white);font-size:.9rem}
+.f-logo span{color:var(--ind-l)}
+.f-links{display:flex;gap:1.4rem;flex-wrap:wrap}
+.f-links a{color:var(--muted);text-decoration:none;transition:color .3s}
+.f-links a:hover{color:var(--white)}
+@media(max-width:768px){.mod-card{grid-template-columns:1fr;gap:2rem}.mod-vis{height:240px}.evo-grid{grid-template-columns:1fr}.msg-cards{grid-template-columns:1fr}footer{justify-content:center;text-align:center}}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div id="topbar">
+  <a class="tb-logo" href="index.html">Soft<span>Capture</span>&reg;</a>
+  <span class="tb-tag">Comparativa Comercial &mdash; VirtualFile</span>
+  <a class="tb-back" href="index.html">
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Volver al inicio
+  </a>
+</div>
+
+<!-- PLAY OVERLAY -->
+<div id="play-overlay">
+  <div class="play-inner">
+    <span class="play-eye">SoftCapture &middot; VirtualFile &middot; Comparativa Comercial &middot; Recorrido Guiado</span>
+    <h2 class="play-title">Modelo Actual<br><span>vs VirtualFile Core</span></h2>
+    <p class="play-sub">Del Servicio Visado al procesamiento inteligente: c&oacute;mo VirtualFile Core automatiza la evaluaci&oacute;n y decisi&oacute;n del cr&eacute;dito, cerrando el ciclo documental.</p>
+    <div class="play-start-wrap">
+      <div class="pulse-ring"></div>
+      <button class="play-start" id="start-btn">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Iniciar recorrido
+      </button>
+    </div>
+    <p class="play-hint">&#x1F50A; Activa el volumen para la experiencia completa</p>
+  </div>
+</div>
+
+<!-- AUDIO CTRL -->
+<div id="audio-ctrl">
+  <div class="ctrl-wrap">
+    <svg class="ring-svg" viewBox="0 0 56 56">
+      <circle class="ring-bg" cx="28" cy="28" r="24"/>
+      <circle class="ring-fill" cx="28" cy="28" r="24" id="ring-circle"/>
+    </svg>
+    <button id="toggle-btn" title="Pausar / Reanudar"></button>
+  </div>
+  <span id="audio-time">0:00</span>
+  <button id="mute-btn" title="Silenciar"></button>
+</div>
+
+<!-- TOUR NAV -->
+<nav id="tour-nav">
+  <div id="nav-panel">
+    <span class="nav-label">VirtualFile &mdash; Comparativa</span>
+    <ul id="nav-list">
+      <li><button data-section="hero"><span class="nd"></span>Inicio</button></li>
+      <li><button data-section="desafio"><span class="nd"></span>El Desaf&iacute;o</button></li>
+      <li class="nav-sep" role="separator"></li>
+      <li><button data-section="slide-0"><span class="nd"></span>Visi&oacute;n general</button></li>
+      <li><button data-section="slide-1"><span class="nd"></span>Modelo Actual</button></li>
+      <li><button data-section="slide-2"><span class="nd"></span>Flujo end-to-end</button></li>
+      <li><button data-section="slide-3"><span class="nd"></span>L&iacute;mites del modelo</button></li>
+      <li><button data-section="slide-4"><span class="nd"></span>Evoluci&oacute;n: VirtualFile Core</button></li>
+      <li class="nav-sep" role="separator"></li>
+      <li><button data-section="beneficios"><span class="nd"></span>Beneficios</button></li>
+      <li><button data-section="mensaje"><span class="nd"></span>Mensaje Clave</button></li>
+      <li><button data-section="stats"><span class="nd"></span>En N&uacute;meros</button></li>
+    </ul>
+  </div>
+  <button id="nav-toggle" title="Men&uacute;">
+    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+  </button>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="panel" id="hero">
+  <div class="hero-badge"><span>&#x26A1;</span> Comparativa Comercial &mdash; VirtualFile</div>
+  <span class="eyebrow" id="hero-eye">SoftCapture &middot; Evoluci&oacute;n del Servicio Visado</span>
+  <h1 class="big" id="hero-h1" style="text-align:center">
+    Modelo Actual<br>
+    <span class="acc">vs VirtualFile Core</span>
+  </h1>
+  <p class="sub" style="text-align:center" id="hero-sub">
+    El Servicio Visado captura y digitaliza. <strong style="color:var(--ind-l)">VirtualFile Core</strong> va m&aacute;s all&aacute;:
+    integra inteligencia de decisi&oacute;n, evaluaci&oacute;n crediticia autom&aacute;tica y trazabilidad completa
+    dentro del mismo sistema.
+  </p>
+  <div class="hero-btns" id="hero-btns">
+    <a href="presentacion-7.html" class="btn btn-i">Ver Servicio Visado</a>
+    <a href="index.html" class="btn btn-o">Volver al inicio</a>
+  </div>
+  <div class="scroll-hint" id="sh"><span>Descubrir</span><div class="s-line"></div></div>
+</div>
+
+<!-- ══════════ EL DESAFÍO ══════════ -->
+<div class="panel" id="desafio">
+  <div style="max-width:1040px;width:100%">
+    <span class="eyebrow">El contexto operacional</span>
+    <h2 class="big" style="font-size:clamp(2rem,4.5vw,3.5rem);text-align:center">
+      El desaf&iacute;o<br>
+      <span class="acc">que impulsa el cambio</span>
+    </h2>
+    <div class="prob-grid">
+      <div class="p-card">
+        <span class="ico">&#x1F4CD;</span>
+        <h3>Alta distribuci&oacute;n geogr&aacute;fica</h3>
+        <p>M&uacute;ltiples sucursales en zonas Norte, Centro y Sur generan documentos que deben procesarse de forma centralizada y uniforme.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F4DA;</span>
+        <h3>Alto volumen documental</h3>
+        <p>Cr&eacute;ditos, solicitudes y contratos generados diariamente exigen un sistema escalable que no dependa de intervenci&oacute;n manual.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x1F50D;</span>
+        <h3>Trazabilidad y control</h3>
+        <p>Cada documento debe tener registro de qui&eacute;n lo proces&oacute;, cu&aacute;ndo y con qu&eacute; resultado, para habilitar auditor&iacute;as y cumplimiento.</p>
+      </div>
+      <div class="p-card">
+        <span class="ico">&#x23F1;</span>
+        <h3>Presi&oacute;n por velocidad</h3>
+        <p>Los tiempos de respuesta en aprobaci&oacute;n de cr&eacute;ditos son un factor competitivo cr&iacute;tico; cada hora de demora impacta la experiencia del cliente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ HORIZONTAL TRACK ══════════ -->
+<div class="h-track-outer" id="products-outer">
+  <div class="h-track-inner">
+    <div class="h-track-slides" id="products-slides">
+
+      <!-- INTRO -->
+      <div class="h-slide">
+        <div class="intro-slide">
+          <span class="eyebrow">5 dimensiones del an&aacute;lisis</span>
+          <h2 class="big">D&oacute;nde <span class="acc">estamos</span><br>y hacia d&oacute;nde <span class="acc">vamos.</span></h2>
+          <p class="sub" style="text-align:center;margin:1.2rem auto 0">Recorre el modelo actual del Servicio Visado, sus l&iacute;mites estructurales y c&oacute;mo VirtualFile Core resuelve cada uno.</p>
+          <span class="arrow-anim">&#8594;</span>
+        </div>
+      </div>
+
+      <!-- 01 MODELO ACTUAL -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">01 &middot; Hoy</p>
+            <h2 class="mod-name">Modelo actual:<br><span style="color:#5eead4">Servicio Visado</span></h2>
+            <p class="mod-desc">El Servicio Visado automatiza la captura f&iacute;sica de documentos, transforma papel en dato digital y lo inyecta en los procesos institucionales de Coopeuch.</p>
+            <ul class="feats">
+              <li>Captura documental automatizada desde sucursales</li>
+              <li>OCR indirecto sobre formularios marcados por el ejecutivo</li>
+              <li>Genera archivo <code style="color:#5eead4;font-size:.82em">TXT</code> con campos extra&iacute;dos</li>
+              <li>Inyecci&oacute;n a proceso de cr&eacute;dito externo</li>
+              <li>Registro estructurado en base de datos institucional de Coopeuch</li>
+              <li style="color:var(--muted);font-style:italic">La aprobaci&oacute;n ocurre <em>fuera</em> del sistema</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(20,184,166,.4)">
+            <div class="mod-orb" style="background:#14b8a6;top:-70px;right:-70px"></div>
+            <svg viewBox="0 0 280 300" width="248" fill="none">
+              <!-- Flujo Servicio Visado -->
+              <rect x="90" y="14" width="100" height="26" rx="7" fill="rgba(20,184,166,.15)" stroke="#5eead4" stroke-width="1.1"/>
+              <text x="140" y="24" text-anchor="middle" fill="#5eead4" font-size="7.5" font-weight="bold" font-family="monospace">&#x1F4C3; Formulario</text>
+              <text x="140" y="35" text-anchor="middle" fill="rgba(94,234,212,.6)" font-size="6.5" font-family="monospace">papel marcado</text>
+              <line x1="140" y1="40" x2="140" y2="56" stroke="#5eead4" stroke-width=".9" opacity=".5"/>
+              <rect x="76" y="56" width="128" height="28" rx="7" fill="rgba(20,184,166,.12)" stroke="#5eead4" stroke-width="1"/>
+              <text x="140" y="69" text-anchor="middle" fill="#5eead4" font-size="8" font-weight="bold" font-family="monospace">&#x1F916; Servicio Visado</text>
+              <text x="140" y="79" text-anchor="middle" fill="rgba(94,234,212,.55)" font-size="6" font-family="monospace">escaneo &middot; OCR &middot; renombrado</text>
+              <line x1="140" y1="84" x2="140" y2="100" stroke="#5eead4" stroke-width=".9" opacity=".5"/>
+              <rect x="92" y="100" width="96" height="24" rx="6" fill="rgba(251,191,36,.12)" stroke="#fbbf24" stroke-width="1"/>
+              <text x="140" y="116" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="bold" font-family="monospace">&#x1F4C4; salida.txt</text>
+              <line x1="140" y1="124" x2="100" y2="144" stroke="#5eead4" stroke-width=".8" opacity=".5"/>
+              <line x1="140" y1="124" x2="180" y2="144" stroke="#5eead4" stroke-width=".8" opacity=".5"/>
+              <!-- BD -->
+              <rect x="40" y="144" width="110" height="26" rx="6" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width=".9"/>
+              <text x="95" y="156" text-anchor="middle" fill="#a78bfa" font-size="7.5" font-family="monospace">&#x1F5C4; BD Coopeuch</text>
+              <text x="95" y="165" text-anchor="middle" fill="rgba(167,139,250,.6)" font-size="5.8" font-family="monospace">trazabilidad</text>
+              <!-- externo -->
+              <rect x="160" y="144" width="110" height="26" rx="6" fill="rgba(248,113,113,.1)" stroke="#f87171" stroke-width=".9"/>
+              <text x="215" y="156" text-anchor="middle" fill="#f87171" font-size="7.5" font-family="monospace">&#x26A1; Proceso</text>
+              <text x="215" y="165" text-anchor="middle" fill="rgba(248,113,113,.6)" font-size="5.8" font-family="monospace">cr&eacute;dito externo</text>
+              <!-- límite -->
+              <rect x="30" y="186" width="220" height="38" rx="8" fill="rgba(251,191,36,.06)" stroke="rgba(251,191,36,.25)" stroke-width=".9"/>
+              <text x="140" y="200" text-anchor="middle" fill="#fbbf24" font-size="7.5" font-weight="bold" font-family="monospace">&#x26A0; L&iacute;mite estructural</text>
+              <text x="140" y="212" text-anchor="middle" fill="rgba(251,191,36,.65)" font-size="6.5" font-family="monospace">La decisi&oacute;n ocurre fuera del sistema</text>
+              <text x="140" y="222" text-anchor="middle" fill="rgba(251,191,36,.45)" font-size="6" font-family="monospace">El dato nace no digital &mdash; se digitaliza despu&eacute;s</text>
+              <!-- calidad -->
+              <text x="30" y="250" fill="rgba(251,191,36,.38)" font-size="6.2" font-family="monospace">Calidad: marcado &middot; escaneo &middot; OCR</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 FLUJO END-TO-END -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">02 &middot; Flujo actual</p>
+            <h2 class="mod-name">Flujo<br><span style="color:#5eead4">end-to-end</span></h2>
+            <p class="mod-desc">El proceso completo desde el escaneo en sucursal hasta el registro en la base de datos de Coopeuch, con sus etapas y actores.</p>
+            <ul class="feats">
+              <li><strong style="color:#5eead4">Escaneo sucursal</strong> &mdash; ejecutivo escanea el formulario f&iacute;sico</li>
+              <li><strong style="color:#5eead4">Servicio Visado</strong> &mdash; detecta, renombra y mueve el archivo</li>
+              <li><strong style="color:#5eead4">OCR indirecto</strong> &mdash; extrae campos del formulario marcado</li>
+              <li><strong style="color:#5eead4">TXT generado</strong> &mdash; consolidado de datos estructurados</li>
+              <li><strong style="color:#5eead4">BD Cliente</strong> &mdash; registro trazable en Coopeuch</li>
+              <li style="color:var(--muted);font-style:italic">Proceso de cr&eacute;dito: sistema externo independiente</li>
+            </ul>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(20,184,166,.4)">
+            <div class="mod-orb" style="background:#14b8a6;bottom:-60px;left:-60px"></div>
+            <svg viewBox="0 0 260 320" width="240" fill="none">
+              <!-- nodos del flujo -->
+              <rect x="80" y="12" width="100" height="24" rx="6" fill="rgba(20,184,166,.15)" stroke="#5eead4" stroke-width="1"/>
+              <text x="130" y="28" text-anchor="middle" fill="#5eead4" font-size="8" font-weight="bold" font-family="monospace">&#x1F4F7; Escaneo</text>
+              <line x1="130" y1="36" x2="130" y2="50" stroke="#5eead4" stroke-width=".8" opacity=".5"/>
+              <text x="130" y="47" text-anchor="middle" fill="rgba(94,234,212,.4)" font-size="6" font-family="monospace">sucursal Norte/Centro/Sur</text>
+
+              <rect x="70" y="54" width="120" height="24" rx="6" fill="rgba(20,184,166,.12)" stroke="#5eead4" stroke-width="1"/>
+              <text x="130" y="70" text-anchor="middle" fill="#5eead4" font-size="8" font-weight="bold" font-family="monospace">&#x1F916; Servicio Visado</text>
+              <line x1="130" y1="78" x2="130" y2="92" stroke="#5eead4" stroke-width=".8" opacity=".5"/>
+              <text x="130" y="89" text-anchor="middle" fill="rgba(94,234,212,.4)" font-size="6" font-family="monospace">detecci&oacute;n &middot; rename &middot; mueve /imagenes</text>
+
+              <rect x="72" y="96" width="116" height="24" rx="6" fill="rgba(99,102,241,.12)" stroke="#a5b4fc" stroke-width="1"/>
+              <text x="130" y="112" text-anchor="middle" fill="#a5b4fc" font-size="8" font-weight="bold" font-family="monospace">&#x1F9E0; OCR Indirecto</text>
+              <line x1="130" y1="120" x2="130" y2="134" stroke="#a5b4fc" stroke-width=".8" opacity=".5"/>
+              <text x="130" y="131" text-anchor="middle" fill="rgba(165,180,252,.4)" font-size="6" font-family="monospace">lee formulario marcado</text>
+
+              <rect x="82" y="138" width="96" height="24" rx="6" fill="rgba(251,191,36,.12)" stroke="#fbbf24" stroke-width="1"/>
+              <text x="130" y="154" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="bold" font-family="monospace">&#x1F4C4; TXT</text>
+              <line x1="130" y1="162" x2="90" y2="178" stroke="#fbbf24" stroke-width=".8" opacity=".5"/>
+              <line x1="130" y1="162" x2="170" y2="178" stroke="#fbbf24" stroke-width=".8" opacity=".5"/>
+              <text x="130" y="175" text-anchor="middle" fill="rgba(251,191,36,.4)" font-size="6" font-family="monospace">RUT|SUCURSAL|TIPO|EJEC</text>
+
+              <!-- dos destinos -->
+              <rect x="14" y="182" width="108" height="24" rx="6" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width=".9"/>
+              <text x="68" y="198" text-anchor="middle" fill="#a78bfa" font-size="7.5" font-family="monospace">&#x1F5C4; BD Cliente</text>
+
+              <rect x="138" y="182" width="108" height="24" rx="6" fill="rgba(248,113,113,.1)" stroke="#f87171" stroke-width=".9"/>
+              <text x="192" y="198" text-anchor="middle" fill="#f87171" font-size="7.5" font-family="monospace">&#x26A1; Cr&eacute;dito externo</text>
+
+              <!-- flechas de proceso externo hacia afuera -->
+              <line x1="192" y1="206" x2="192" y2="220" stroke="#f87171" stroke-width=".7" opacity=".4" stroke-dasharray="3 3"/>
+              <rect x="148" y="220" width="88" height="18" rx="5" fill="rgba(248,113,113,.06)" stroke="rgba(248,113,113,.2)" stroke-width=".7"/>
+              <text x="192" y="232" text-anchor="middle" fill="rgba(248,113,113,.55)" font-size="6.5" font-family="monospace">sistema externo &#x2197;</text>
+
+              <!-- nota límite -->
+              <rect x="14" y="250" width="232" height="36" rx="7" fill="rgba(251,191,36,.05)" stroke="rgba(251,191,36,.2)" stroke-width=".8"/>
+              <text x="130" y="264" text-anchor="middle" fill="rgba(251,191,36,.7)" font-size="7" font-weight="bold" font-family="monospace">Brecha: decisi&oacute;n fuera del sistema</text>
+              <text x="130" y="278" text-anchor="middle" fill="rgba(251,191,36,.45)" font-size="6.2" font-family="monospace">No hay reglas &middot; No hay aprobaci&oacute;n interna</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 LÍMITES -->
+      <div class="h-slide" style="flex-direction:column;gap:2rem">
+        <div style="text-align:center">
+          <p style="font-size:.7rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ind-l);margin-bottom:.7rem">03 &middot; Fricci&oacute;n estructural</p>
+          <h2 class="big" style="font-size:clamp(1.8rem,3.8vw,3rem)">L&iacute;mites del<br><span class="acc">modelo actual</span></h2>
+          <p class="sub" style="text-align:center;margin:.8rem auto 0">El Servicio Visado resuelve la captura, pero deja brechas cr&iacute;ticas en el proceso de cr&eacute;dito.</p>
+        </div>
+        <div class="limit-grid">
+          <div class="lim-card">
+            <span class="ico">&#x1F4DD;</span>
+            <h3>Dato nace en papel</h3>
+            <p>El dato origin&aacute;rio es anal&oacute;gico. La digitalizaci&oacute;n ocurre despu&eacute;s, introduciendo riesgo de calidad en cada paso.</p>
+          </div>
+          <div class="lim-card">
+            <span class="ico">&#x1F9E9;</span>
+            <h3>Dependencia del OCR</h3>
+            <p>La calidad del dato capturado depende del marcado del formulario, la calidad del escaneo y la interpretaci&oacute;n OCR.</p>
+          </div>
+          <div class="lim-card">
+            <span class="ico">&#x1F6AB;</span>
+            <h3>Sin reglas en el core</h3>
+            <p>El sistema no tiene capacidad de evaluar ni aplicar pol&iacute;ticas de cr&eacute;dito. La l&oacute;gica de negocio vive afuera.</p>
+          </div>
+          <div class="lim-card">
+            <span class="ico">&#x1F4E4;</span>
+            <h3>Aprobaci&oacute;n externa</h3>
+            <p>La decisi&oacute;n final se toma en un sistema ajeno, sin integraci&oacute;n nativa con el flujo documental capturado.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 VIRTUALFILE CORE -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num">04 &middot; Evoluci&oacute;n</p>
+            <h2 class="mod-name">VirtualFile<br><span style="color:var(--ind-l)">Core</span></h2>
+            <p class="mod-desc">VirtualFile Core agrega una capa de inteligencia y decisi&oacute;n sobre el flujo documental, integrando la evaluaci&oacute;n crediticia dentro del mismo sistema.</p>
+            <ul class="feats">
+              <li><strong style="color:var(--ind-l)">Capa de inteligencia</strong> sobre datos estructurados</li>
+              <li>Aplica <strong style="color:var(--ind-l)">reglas y pol&iacute;ticas</strong> de cr&eacute;dito configurables</li>
+              <li>Consulta <strong style="color:var(--ind-l)">tablas de autorizaci&oacute;n</strong> institucionales</li>
+              <li>Genera <strong style="color:var(--ind-l)">aprobaci&oacute;n autom&aacute;tica</strong> dentro del sistema</li>
+              <li>Evaluaci&oacute;n crediticia <strong style="color:var(--ind-l)">integrada</strong>, no externa</li>
+              <li>Decisiones <strong style="color:var(--ind-l)">auditables</strong> y consistentes en cada caso</li>
+            </ul>
+            <div style="margin-top:1.4rem;padding:.9rem 1.1rem;border-radius:.8rem;background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.28)">
+              <p style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ind-l);margin-bottom:.45rem">&#x26A1; Automatizaci&oacute;n de la decisi&oacute;n</p>
+              <p style="font-size:.8rem;color:var(--muted);line-height:1.6">Datos estructurados &rarr; Reglas y pol&iacute;ticas &rarr; Tablas de autorizaci&oacute;n &rarr; <strong style="color:var(--ind-l)">Aprobaci&oacute;n autom&aacute;tica</strong></p>
+            </div>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(99,102,241,.4)">
+            <div class="mod-orb" style="background:var(--ind);top:-70px;right:-70px"></div>
+            <svg viewBox="0 0 280 310" width="248" fill="none">
+              <!-- VirtualFile Core diagram -->
+              <!-- datos entrada -->
+              <rect x="20" y="16" width="240" height="28" rx="7" fill="rgba(20,184,166,.1)" stroke="#5eead4" stroke-width="1"/>
+              <text x="140" y="26" text-anchor="middle" fill="#5eead4" font-size="7.5" font-weight="bold" font-family="monospace">&#x1F4CA; Datos estructurados (Servicio Visado)</text>
+              <text x="140" y="38" text-anchor="middle" fill="rgba(94,234,212,.6)" font-size="6" font-family="monospace">RUT &middot; Sucursal &middot; Tipo &middot; Ejecutivo</text>
+              <line x1="140" y1="44" x2="140" y2="58" stroke="rgba(99,102,241,.5)" stroke-width="1" stroke-dasharray="3 3"/>
+              <!-- VirtualFile Core box -->
+              <rect x="16" y="58" width="248" height="130" rx="10" fill="rgba(99,102,241,.06)" stroke="#6366f1" stroke-width="1.3"/>
+              <text x="140" y="74" text-anchor="middle" fill="#a5b4fc" font-size="9" font-weight="bold" font-family="monospace">&#x26A1; VirtualFile Core</text>
+              <!-- reglas -->
+              <rect x="28" y="82" width="100" height="26" rx="6" fill="rgba(99,102,241,.12)" stroke="#a5b4fc" stroke-width=".9"/>
+              <text x="78" y="94" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">&#x1F4CB; Reglas y</text>
+              <text x="78" y="104" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">pol&iacute;ticas</text>
+              <!-- tablas -->
+              <rect x="152" y="82" width="100" height="26" rx="6" fill="rgba(99,102,241,.12)" stroke="#a5b4fc" stroke-width=".9"/>
+              <text x="202" y="94" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">&#x1F5C3; Tablas de</text>
+              <text x="202" y="104" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">autorizaci&oacute;n</text>
+              <!-- flecha convergencia -->
+              <line x1="78"  y1="108" x2="100" y2="122" stroke="#a5b4fc" stroke-width=".8" opacity=".6"/>
+              <line x1="202" y1="108" x2="180" y2="122" stroke="#a5b4fc" stroke-width=".8" opacity=".6"/>
+              <!-- evaluación -->
+              <rect x="80" y="122" width="120" height="26" rx="6" fill="rgba(99,102,241,.2)" stroke="#6366f1" stroke-width="1.1"/>
+              <text x="140" y="134" text-anchor="middle" fill="#a5b4fc" font-size="7.5" font-weight="bold" font-family="monospace">&#x1F9E0; Evaluaci&oacute;n</text>
+              <text x="140" y="144" text-anchor="middle" fill="rgba(165,180,252,.6)" font-size="6.2" font-family="monospace">crediticia integrada</text>
+              <!-- pulso -->
+              <circle cx="140" cy="135" r="26" fill="none" stroke="#6366f1" stroke-width=".8" opacity=".3">
+                <animate attributeName="r" values="26;38;26" dur="2.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values=".3;0;.3" dur="2.2s" repeatCount="indefinite"/>
+              </circle>
+              <line x1="140" y1="188" x2="140" y2="204" stroke="rgba(52,211,153,.6)" stroke-width="1"/>
+              <!-- salida aprobación -->
+              <rect x="56" y="204" width="168" height="30" rx="8" fill="rgba(52,211,153,.12)" stroke="#34d399" stroke-width="1.2"/>
+              <text x="140" y="218" text-anchor="middle" fill="#34d399" font-size="9" font-weight="bold" font-family="monospace">&#x2705; Aprobaci&oacute;n autom&aacute;tica</text>
+              <text x="140" y="229" text-anchor="middle" fill="rgba(52,211,153,.6)" font-size="6.2" font-family="monospace">dentro del sistema &middot; auditable</text>
+              <line x1="140" y1="234" x2="100" y2="248" stroke="#34d399" stroke-width=".7" opacity=".5"/>
+              <line x1="140" y1="234" x2="180" y2="248" stroke="#34d399" stroke-width=".7" opacity=".5"/>
+              <!-- destinos finales -->
+              <rect x="18" y="248" width="110" height="20" rx="5" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="73" y="262" text-anchor="middle" fill="#a78bfa" font-size="6.8" font-family="monospace">&#x1F5C4; BD + registro</text>
+              <rect x="152" y="248" width="110" height="20" rx="5" fill="rgba(52,211,153,.09)" stroke="#34d399" stroke-width=".8"/>
+              <text x="207" y="262" text-anchor="middle" fill="#34d399" font-size="6.8" font-family="monospace">&#x1F4C1; expediente digital</text>
+              <text x="20" y="290" fill="rgba(165,180,252,.35)" font-size="6.5" font-family="monospace">Sin sistema externo &middot; Decisi&oacute;n en el core</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /slides -->
+  </div>
+</div><!-- /h-track-outer -->
+
+<!-- ══════════ EVOLUCIÓN COMPARATIVA ══════════ -->
+<div class="panel" id="beneficios" style="text-align:center">
+  <span class="eyebrow">Comparativa directa</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3.2rem)">
+    Antes <span class="acc">vs</span> Despu&eacute;s
+  </h2>
+  <div class="evo-grid" style="text-align:left">
+    <div class="evo-box current">
+      <span class="evo-label">Modelo actual &mdash; Servicio Visado</span>
+      <div class="evo-title">Captura y digitaliza</div>
+      <ul class="evo-list">
+        <li><span class="dot"></span>OCR sobre formularios marcados en papel</li>
+        <li><span class="dot"></span>Genera TXT e inyecta a proceso externo</li>
+        <li><span class="dot"></span>Registro en BD institutcional</li>
+        <li><span class="dot"></span>Dato nace no digital, se digitaliza despu&eacute;s</li>
+        <li><span class="dot" style="background:#f87171"></span><span style="color:#f87171">Decisi&oacute;n de cr&eacute;dito: sistema externo</span></li>
+        <li><span class="dot" style="background:#f87171"></span><span style="color:#f87171">Sin reglas ni aprobaci&oacute;n en el core</span></li>
+      </ul>
+    </div>
+    <div class="evo-box vf">
+      <span class="evo-label">Evoluci&oacute;n &mdash; VirtualFile Core</span>
+      <div class="evo-title">Captura, eval&uacute;a y decide</div>
+      <ul class="evo-list">
+        <li><span class="dot"></span>Datos estructurados como entrada</li>
+        <li><span class="dot"></span>Reglas y pol&iacute;ticas de cr&eacute;dito integradas</li>
+        <li><span class="dot"></span>Tablas de autorizaci&oacute;n institucionales</li>
+        <li><span class="dot"></span>Evaluaci&oacute;n crediticia dentro del sistema</li>
+        <li><span class="dot" style="background:#34d399"></span><span style="color:#34d399">Aprobaci&oacute;n autom&aacute;tica en el core</span></li>
+        <li><span class="dot" style="background:#34d399"></span><span style="color:#34d399">Auditable, consistente, escalable</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Beneficios -->
+  <span class="eyebrow" style="margin-top:4rem">Beneficios para el negocio</span>
+  <div class="ben-grid">
+    <div class="ben-card">
+      <span class="ico">&#x23F0;</span>
+      <h3>Menor tiempo de respuesta</h3>
+      <p>La aprobaci&oacute;n autom&aacute;tica elimina esperas entre sistemas y reduce el tiempo de ciclo del cr&eacute;dito.</p>
+    </div>
+    <div class="ben-card">
+      <span class="ico">&#x1F9D1;&#x200D;&#x1F4BB;</span>
+      <h3>Menor carga operativa</h3>
+      <p>Las decisiones rutinarias se automatizan: los equipos se enfocan en casos complejos y atenci&oacute;n al cliente.</p>
+    </div>
+    <div class="ben-card">
+      <span class="ico">&#x2696;&#xFE0F;</span>
+      <h3>Decisiones auditables</h3>
+      <p>Cada aprobaci&oacute;n queda registrada con su criterio, fecha y pol&iacute;tica aplicada. Cumplimiento simplificado.</p>
+    </div>
+    <div class="ben-card">
+      <span class="ico">&#x1F4C8;</span>
+      <h3>Escalabilidad sin costo</h3>
+      <p>El volumen crece sin necesidad de escalar el equipo: las reglas se actualizan, el sistema se adapta solo.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MENSAJE CLAVE ══════════ -->
+<div class="panel" id="mensaje">
+  <span class="eyebrow">Posicionamiento comercial</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3.2rem)">
+    El mensaje<br><span class="acc">clave</span>
+  </h2>
+  <div class="msg-cards">
+    <div class="msg-card" style="border-color:rgba(20,184,166,.3);background:rgba(20,184,166,.05)">
+      <h3><span style="color:#5eead4">&#x1F916;</span> Servicio Visado</h3>
+      <p>VirtualFile <strong style="color:#5eead4">automatiza la captura y trazabilidad documental</strong>: transforma papel en dato digital, lo estructura, lo almacena y lo inyecta en los flujos institucionales de Coopeuch con trazabilidad completa.</p>
+    </div>
+    <div class="msg-card" style="border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.07)">
+      <h3><span style="color:var(--ind-l)">&#x26A1;</span> VirtualFile Core</h3>
+      <p>VirtualFile Core <strong style="color:var(--ind-l)">automatiza tambi&eacute;n la evaluaci&oacute;n y decisi&oacute;n del cr&eacute;dito</strong>: integra reglas, pol&iacute;ticas y tablas de autorizaci&oacute;n para generar aprobaciones autom&aacute;ticas dentro del mismo sistema, sin depender de procesos externos.</p>
+    </div>
+  </div>
+  <div style="margin-top:3rem;padding:1.4rem 2rem;border-radius:1rem;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.07);max-width:700px;text-align:center">
+    <p style="font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ind-l);margin-bottom:.7rem">Proyecci&oacute;n estrat&eacute;gica</p>
+    <p style="font-size:1.05rem;font-weight:700;line-height:1.6;color:var(--white)">Del <span style="color:#5eead4">Servicio Visado</span> al <span style="color:var(--ind-l)">VirtualFile Core</span>:<br>de digitalizar el proceso a <strong style="color:var(--ind-l)">automatizar la decisi&oacute;n.</strong></p>
+  </div>
+</div>
+
+<!-- ══════════ STATS ══════════ -->
+<div class="panel" id="stats" style="min-height:50vh">
+  <span class="eyebrow">La diferencia en n&uacute;meros</span>
+  <div class="stats-g">
+    <div><span class="st-n" data-target="0">0</span><p class="st-l">Intervenciones manuales en la decisi&oacute;n</p></div>
+    <div><span class="st-n" data-target="4">0</span><p class="st-l">Campos clave automatizados</p></div>
+    <div><span class="st-n" data-target="2">0</span><p class="st-l">Sistemas reemplazados por 1 core</p></div>
+    <div><span class="st-n" data-target="100">0</span><p class="st-l">% de decisiones auditables</p></div>
+  </div>
+</div>
+
+<footer>
+  <span class="f-logo">Soft<span>Capture</span>&reg;</span>
+  <div class="f-links">
+    <a href="index.html">&#x2190; Centro de presentaciones</a>
+    <a href="presentacion-7.html">&#x2190; Servicio Visado</a>
+    <a href="https://softcapture-usa.com/productos" target="_blank">Productos</a>
+    <a href="https://softcapture-usa.com/contacto" target="_blank">Contacto</a>
+  </div>
+  <span>&copy; 2026 SoftCapture&reg; &middot; Todos los derechos reservados.</span>
+</footer>
+
+<script>
+/* ── AUDIO + TOUR ── */
+(function(){
+  var overlay=document.getElementById('play-overlay'),ctrl=document.getElementById('audio-ctrl'),topbar=document.getElementById('topbar'),toggleBtn=document.getElementById('toggle-btn'),ringEl=document.getElementById('ring-circle'),timeEl=document.getElementById('audio-time'),audio=new Audio('audio/Untitled.mp3');
+  audio.volume=0.2;audio.muted=true;
+  var CIRC=2*Math.PI*24,TOUR_MS=180000,playing=false,autoScroll=false,rafId=null,tourStart=null,pauseStart=null,totalPaused=0;
+  var maxScroll=function(){return document.documentElement.scrollHeight-window.innerHeight};
+  var getProgress=function(){if(!tourStart)return 0;var p=totalPaused+(pauseStart?Date.now()-pauseStart:0);return Math.min((Date.now()-tourStart-p)/TOUR_MS,1)};
+  var fmtTime=function(s){return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+  var updateUI=function(pct){ringEl.style.strokeDashoffset=CIRC-pct*CIRC;timeEl.textContent=fmtTime(pct*TOUR_MS/1000)};
+  var setIcon=function(p){toggleBtn.innerHTML=p?'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'};
+  function tick(){if(!autoScroll)return;var pct=getProgress();window.scrollTo(0,pct*maxScroll());updateUI(pct);document.getElementById('prog').style.width=(pct*100)+'%';if(pct<1){rafId=requestAnimationFrame(tick)}else{autoScroll=false;playing=false;cancelAnimationFrame(rafId);setIcon(false);updateUI(1)}}
+  document.getElementById('start-btn').addEventListener('click',function(){
+    audio.currentTime=0;
+    window.scrollTo({top:0,behavior:'instant'});tourStart=Date.now();totalPaused=0;pauseStart=null;autoScroll=false;playing=false;setIcon(false);
+    overlay.style.transition='opacity 1s ease';overlay.style.opacity='0';overlay.style.pointerEvents='none';
+    setTimeout(function(){overlay.style.display='none'},1050);
+    setTimeout(function(){ctrl.classList.add('visible');topbar.classList.add('visible');document.getElementById('tour-nav').classList.add('visible')},700);
+  });
+  toggleBtn.addEventListener('click',function(){
+    if(playing){audio.pause();pauseStart=Date.now();autoScroll=false;cancelAnimationFrame(rafId);playing=false;setIcon(false)}
+    else{if(pauseStart){totalPaused+=Date.now()-pauseStart;pauseStart=null}audio.play().catch(function(e){console.warn(e)});autoScroll=true;playing=true;setIcon(true);requestAnimationFrame(tick)}
+  });
+  var wheelTimer;
+  window.addEventListener('wheel',function(){if(!playing)return;if(!pauseStart)pauseStart=Date.now();autoScroll=false;cancelAnimationFrame(rafId);clearTimeout(wheelTimer);wheelTimer=setTimeout(function(){if(playing){totalPaused+=Date.now()-pauseStart;pauseStart=null;autoScroll=true;requestAnimationFrame(tick)}},2000)},{passive:true});
+  window._tourJump=function(targetY){if(!tourStart)return;var ms=document.documentElement.scrollHeight-window.innerHeight;var pct=ms>0?Math.max(0,Math.min(1,targetY/ms)):0;if(pauseStart){totalPaused+=Date.now()-pauseStart;pauseStart=null}tourStart=Date.now()-totalPaused-pct*TOUR_MS;window.scrollTo({top:targetY,behavior:'smooth'})};
+  var muteBtn=document.getElementById('mute-btn'),isMuted=true;
+  function setMuteIcon(m){muteBtn.innerHTML=m?'<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 19L19 20.27 20.27 19 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>':'<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';m?muteBtn.classList.add('muted'):muteBtn.classList.remove('muted')}
+  muteBtn.addEventListener('click',function(){isMuted=!isMuted;audio.muted=isMuted;setMuteIcon(isMuted)});
+  setMuteIcon(true);setIcon(false);
+})();
+
+/* ── TOUR NAV ── */
+(function(){
+  document.getElementById('nav-toggle').addEventListener('click',function(){document.getElementById('tour-nav').classList.toggle('open')});
+  document.querySelectorAll('#nav-list button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sec=this.dataset.section,targetY=0;
+      if(sec.startsWith('slide-')){var idx=parseInt(sec.replace('slide-',''),10)+1,outer=document.getElementById('products-outer'),slides=document.getElementById('products-slides'),cnt=slides?slides.querySelectorAll('.h-slide').length:5,dist=window.innerWidth*(cnt-1);targetY=outer.offsetTop+(cnt>1?(idx/(cnt-1))*dist:0)}
+      else{var el=document.getElementById(sec);if(el)targetY=el.offsetTop}
+      if(window._tourJump)window._tourJump(targetY);else window.scrollTo({top:targetY,behavior:'smooth'});
+      document.getElementById('tour-nav').classList.remove('open');
+    });
+  });
+})();
+
+/* ── GSAP ── */
+try{gsap.registerPlugin(ScrollTrigger)}catch(e){}
+gsap.from('.hero-badge',{opacity:0,y:14,duration:.65,delay:.35});
+gsap.from('#hero-eye',{opacity:0,y:18,duration:.8,delay:.55});
+gsap.from('#hero-h1',{opacity:0,y:44,duration:1,delay:.8,ease:'power3.out'});
+gsap.from('#hero-sub',{opacity:0,y:28,duration:.9,delay:1.05,ease:'power3.out'});
+gsap.from('#hero-btns',{opacity:0,y:18,duration:.75,delay:1.25});
+gsap.from('#sh',{opacity:0,duration:.75,delay:1.65});
+['.p-card','.lim-card','.ben-card','.msg-card','.evo-box','.dec-node'].forEach(function(sel){
+  gsap.utils.toArray(sel).forEach(function(el,i){
+    gsap.from(el,{scrollTrigger:{trigger:el,start:'top 88%'},y:40,opacity:0,duration:.8,ease:'power3.out',delay:i*.07});
+  });
+});
+gsap.utils.toArray('.st-n').forEach(function(el){
+  var t=+el.dataset.target;
+  ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){
+    if(t===0){el.textContent='0';return}
+    var v=0,step=t/60,go=function(){v+=step;if(v<t){el.textContent=Math.ceil(v);requestAnimationFrame(go)}else{el.textContent=t+(t===100?'%':'')}};go();
+  }});
+});
+
+/* ── HORIZONTAL ── */
+try{(function(){
+  var outer=document.getElementById('products-outer'),slides=document.getElementById('products-slides'),count=slides.querySelectorAll('.h-slide').length;
+  var getScrollDist=function(){return window.innerWidth*(count-1)};
+  var setHeight=function(){outer.style.height=(getScrollDist()+window.innerHeight)+'px'};
+  setHeight();
+  var tween;
+  function buildTrigger(){if(tween)tween.kill();tween=ScrollTrigger.create({trigger:outer,start:'top top',end:function(){return '+='+getScrollDist()},scrub:1,pin:'.h-track-inner',anticipatePin:1,onUpdate:function(self){gsap.set(slides,{x:-(self.progress*getScrollDist())})}})}
+  buildTrigger();
+  window.addEventListener('resize',function(){setHeight();try{ScrollTrigger.refresh()}catch(e){}});
+})()}catch(e){console.warn(e)}
+
+/* ── PROGRESO ── */
+window.addEventListener('scroll',function(){
+  try{var d=document.documentElement;document.getElementById('prog').style.width=(d.scrollTop/(d.scrollHeight-window.innerHeight)*100)+'%'}catch(e){}
+});
+
+/* ── PARTÍCULAS ── */
+(function(){
+  var cv=document.getElementById('bg-canvas'),cx=cv.getContext('2d'),W,H,pts=[],rid;
+  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+  function Pt(){this.reset=function(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.3+.3;this.vx=(Math.random()-.5)*.28;this.vy=(Math.random()-.5)*.28;this.a=Math.random()*.35+.08};this.reset()}
+  function init(){pts=[];for(var i=0;i<Math.floor(W*H/11000);i++)pts.push(new Pt())}
+  function draw(){
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W||p.y<0||p.y>H)p.reset();cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle='rgba(99,102,241,'+p.a+')';cx.fill()}
+    for(var i=0;i<pts.length-1;i++){for(var j=i+1;j<pts.length;j++){var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){cx.beginPath();cx.strokeStyle='rgba(99,102,241,'+(.05*(1-d/90))+')';cx.lineWidth=.4;cx.moveTo(pts[i].x,pts[i].y);cx.lineTo(pts[j].x,pts[j].y);cx.stroke()}}}
+    rid=requestAnimationFrame(draw);
+  }
+  resize();init();draw();
+  window.addEventListener('resize',function(){cancelAnimationFrame(rid);resize();init();draw()});
+})();
+</script>
+</body>
+</html>
