@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Servicio Visado &mdash; Captura Documental &mdash; Coopeuch &mdash; SoftCapture</title>
+<title>Servicio Visado &amp; VirtualFile Core &mdash; Coopeuch &mdash; SoftCapture</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
@@ -140,7 +140,41 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
 #nav-list li button.active{color:var(--teal-l)}
 #nav-list li button .nd{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .nav-sep{height:1px;background:rgba(20,184,166,.12);margin:.38rem .9rem}
-@media(max-width:768px){.mod-card{grid-template-columns:1fr;gap:2rem}.mod-vis{height:240px}.info-cols{grid-template-columns:1fr}footer{justify-content:center;text-align:center}}
+/* ─── LÍMITES / WARNING ─── */
+.limit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem;margin-top:2.6rem;max-width:960px;width:100%}
+.lim-card{background:var(--card);border:1px solid rgba(251,191,36,.22);border-radius:1rem;padding:1.5rem 1.2rem;text-align:center}
+.lim-card .ico{font-size:1.8rem;display:block;margin-bottom:.7rem}
+.lim-card h3{font-size:.88rem;font-weight:700;margin-bottom:.35rem;color:#fbbf24}
+.lim-card p{font-size:.8rem;color:var(--muted);line-height:1.55}
+/* ─── EVOLUCIÓN VF ─── */
+.evo-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.8rem;max-width:1060px;width:100%;margin-top:3rem;align-items:start}
+.evo-box{border-radius:1.2rem;padding:1.8rem;border:1px solid var(--border);background:var(--card)}
+.evo-box.current{border-color:rgba(20,184,166,.35);background:rgba(20,184,166,.04)}
+.evo-box.vf{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.07)}
+.evo-label{font-size:.6rem;font-weight:800;letter-spacing:.32em;text-transform:uppercase;display:block;margin-bottom:.8rem}
+.evo-box.current .evo-label{color:var(--teal-l)}
+.evo-box.vf .evo-label{color:#a5b4fc}
+.evo-title{font-size:1.3rem;font-weight:900;margin-bottom:1rem;line-height:1.15}
+.evo-list{list-style:none;display:flex;flex-direction:column;gap:.55rem}
+.evo-list li{font-size:.84rem;display:flex;align-items:flex-start;gap:.55rem;color:var(--muted);line-height:1.5}
+.evo-list li .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.42rem}
+.evo-box.current .dot{background:var(--teal-l)}
+.evo-box.vf .dot{background:#a5b4fc}
+/* ─── BENEFICIOS VF ─── */
+.ben-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.4rem;margin-top:2.8rem;max-width:1000px;width:100%}
+.ben-card{background:var(--card);border:1px solid rgba(99,102,241,.2);border-radius:1.1rem;padding:1.8rem 1.4rem;text-align:center}
+.ben-card .ico{font-size:2rem;display:block;margin-bottom:.85rem}
+.ben-card h3{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#a5b4fc}
+.ben-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+/* ─── MENSAJE CLAVE ─── */
+.msg-cards{display:grid;grid-template-columns:1fr 1fr;gap:2rem;max-width:900px;margin-top:3rem;width:100%}
+.msg-card{border-radius:1.2rem;padding:2rem 1.6rem;border:1px solid var(--border);background:var(--card);text-align:left}
+.msg-card h3{font-size:1.05rem;font-weight:800;margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+.msg-card p{font-size:.85rem;color:var(--muted);line-height:1.7}
+/* ─── DIVISOR TRANSICIÓN ─── */
+.section-divider{width:100vw;min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;text-align:center;position:relative;z-index:1}
+.divider-badge{display:inline-flex;align-items:center;gap:.6rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:2rem;padding:.5rem 1.4rem;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:1.6rem}
+@media(max-width:768px){.mod-card{grid-template-columns:1fr;gap:2rem}.mod-vis{height:240px}.info-cols{grid-template-columns:1fr}.evo-grid{grid-template-columns:1fr}.msg-cards{grid-template-columns:1fr}footer{justify-content:center;text-align:center}}
 </style>
 </head>
 <body>
@@ -149,7 +183,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
 
 <div id="topbar">
   <a class="tb-logo" href="index.html">Soft<span>Capture</span>&reg;</a>
-  <span class="tb-tag">Servicio Visado &mdash; Captura Documental</span>
+  <span class="tb-tag">Servicio Visado &amp; VirtualFile Core</span>
   <a class="tb-back" href="index.html">
     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
     Volver al inicio
@@ -159,9 +193,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
 <!-- PLAY OVERLAY -->
 <div id="play-overlay">
   <div class="play-inner">
-    <span class="play-eye">SoftCapture &middot; Servicio Visado &middot; Coopeuch &middot; Recorrido Guiado</span>
-    <h2 class="play-title">Del papel<br><span>al sistema.</span></h2>
-    <p class="play-sub">Flujo automático de captura, indexación y almacenamiento de documentos escaneados para Coopeuch &mdash; desde la sucursal hasta la base de datos.</p>
+    <span class="play-eye">SoftCapture &middot; Servicio Visado &middot; VirtualFile Core &middot; Coopeuch</span>
+    <h2 class="play-title">Del papel<br><span>al core inteligente.</span></h2>
+    <p class="play-sub">Del Servicio Visado al VirtualFile Core: flujo completo de captura documental, sus l&iacute;mites estructurales y c&oacute;mo la capa de inteligencia automatiza la decisi&oacute;n crediticia.</p>
     <div class="play-start-wrap">
       <div class="pulse-ring"></div>
       <button class="play-start" id="start-btn">
@@ -189,7 +223,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
 <!-- TOUR NAV -->
 <nav id="tour-nav">
   <div id="nav-panel">
-    <span class="nav-label">Servicio Visado &mdash; Coopeuch</span>
+    <span class="nav-label">Servicio Visado &amp; VirtualFile Core</span>
     <ul id="nav-list">
       <li><button data-section="hero"><span class="nd"></span>Inicio</button></li>
       <li><button data-section="problema"><span class="nd"></span>El Desaf&iacute;o</button></li>
@@ -199,11 +233,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
       <li><button data-section="slide-2"><span class="nd"></span>Motor Servicio Visado</button></li>
       <li><button data-section="slide-3"><span class="nd"></span>OCR &amp; Captura Indirecta</button></li>
       <li><button data-section="slide-4"><span class="nd"></span>SMTP &amp; Base de Datos</button></li>
+      <li><button data-section="slide-5"><span class="nd"></span>L&iacute;mites del modelo</button></li>
+      <li><button data-section="slide-6"><span class="nd"></span>VirtualFile Core</button></li>
       <li class="nav-sep" role="separator"></li>
       <li><button data-section="flujo"><span class="nd"></span>Flujo Completo</button></li>
       <li><button data-section="contexto"><span class="nd"></span>Contexto &amp; Cliente</button></li>
+      <li><button data-section="comparativa"><span class="nd"></span>Comparativa</button></li>
+      <li><button data-section="mensaje"><span class="nd"></span>Mensaje Clave</button></li>
       <li><button data-section="stats"><span class="nd"></span>En N&uacute;meros</button></li>
-
     </ul>
   </div>
   <button id="nav-toggle" title="Men&uacute;">
@@ -213,15 +250,15 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
 
 <!-- ══════════ HERO ══════════ -->
 <div class="panel" id="hero">
-  <div class="hero-badge"><span>&#x1F916;</span> Servicio Visado &mdash; Motor de Captura Documental</div>
+  <div class="hero-badge"><span>&#x1F916;</span> Servicio Visado &amp; VirtualFile Core &mdash; Coopeuch</div>
   <span class="eyebrow" id="hero-eye">SoftCapture &middot; Servicio para Coopeuch</span>
   <h1 class="big" id="hero-h1" style="text-align:center">
     Del papel<br>
     <span class="acc">al sistema.</span>
   </h1>
   <p class="sub" style="text-align:center" id="hero-sub">
-    El <strong style="color:var(--teal-l)">Servicio Visado</strong> automatiza la captura, indexaci&oacute;n y almacenamiento de documentos escaneados en sucursales de Coopeuch;
-    desde el escaneo del ejecutivo hasta la grabaci&oacute;n en la base de datos corporativa.
+    El <strong style="color:var(--teal-l)">Servicio Visado</strong> automatiza la captura documental desde las sucursales de Coopeuch.
+    <strong style="color:#a5b4fc">VirtualFile Core</strong> va m&aacute;s all&aacute;: integra evaluaci&oacute;n crediticia y decisi&oacute;n autom&aacute;tica dentro del mismo sistema.
   </p>
   <div class="hero-btns" id="hero-btns">
     <a href="index.html" class="btn btn-t">Ver presentaciones</a>
@@ -271,9 +308,9 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
       <!-- INTRO -->
       <div class="h-slide">
         <div class="intro-slide">
-          <span class="eyebrow">5 componentes del sistema</span>
+          <span class="eyebrow">7 dimensiones &mdash; del papel al core inteligente</span>
           <h2 class="big">Un flujo.<br><span class="acc">Completamente automatizado.</span></h2>
-          <p class="sub" style="text-align:center;margin:1.2rem auto 0">Desliza para conocer c&oacute;mo el <strong style="color:var(--teal-l)">Servicio Visado</strong> transforma documentos f&iacute;sicos en datos estructurados en la BD de Coopeuch.</p>
+          <p class="sub" style="text-align:center;margin:1.2rem auto 0">El <strong style="color:var(--teal-l)">Servicio Visado</strong> captura y digitaliza. <strong style="color:#a5b4fc">VirtualFile Core</strong> eval&uacute;a y decide. Desliza para recorrer el ciclo completo.</p>
           <span class="arrow-anim">&#8594;</span>
         </div>
       </div>
@@ -552,6 +589,94 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
         </div>
       </div>
 
+      <!-- 05 LÍMITES DEL MODELO -->
+      <div class="h-slide" style="flex-direction:column;gap:2rem">
+        <div style="text-align:center">
+          <p style="font-size:.7rem;letter-spacing:.42em;text-transform:uppercase;color:var(--teal-l);margin-bottom:.7rem">05 &middot; Fricci&oacute;n estructural</p>
+          <h2 class="big" style="font-size:clamp(1.8rem,3.8vw,3rem)">L&iacute;mites del<br><span class="acc">modelo actual</span></h2>
+          <p class="sub" style="text-align:center;margin:.8rem auto 0">El Servicio Visado resuelve la captura, pero deja brechas cr&iacute;ticas en el proceso de cr&eacute;dito que abren la puerta a VirtualFile Core.</p>
+        </div>
+        <div class="limit-grid">
+          <div class="lim-card">
+            <span class="ico">&#x1F4DD;</span>
+            <h3>Dato nace en papel</h3>
+            <p>El dato originario es anal&oacute;gico. La digitalizaci&oacute;n ocurre despu&eacute;s, introduciendo riesgo de calidad en cada paso del flujo.</p>
+          </div>
+          <div class="lim-card">
+            <span class="ico">&#x1F9E9;</span>
+            <h3>Dependencia del OCR</h3>
+            <p>La calidad del dato capturado depende del marcado del formulario, la calidad del escaneo y la interpretaci&oacute;n OCR.</p>
+          </div>
+          <div class="lim-card">
+            <span class="ico">&#x1F6AB;</span>
+            <h3>Sin reglas en el core</h3>
+            <p>El sistema no tiene capacidad de evaluar ni aplicar pol&iacute;ticas de cr&eacute;dito. La l&oacute;gica de negocio vive afuera del sistema.</p>
+          </div>
+          <div class="lim-card">
+            <span class="ico">&#x1F4E4;</span>
+            <h3>Aprobaci&oacute;n externa</h3>
+            <p>La decisi&oacute;n final se toma en un sistema ajeno, sin integraci&oacute;n nativa con el flujo documental capturado.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 VIRTUALFILE CORE -->
+      <div class="h-slide">
+        <div class="mod-card">
+          <div>
+            <p class="mod-num" style="color:#a5b4fc">06 &middot; Evoluci&oacute;n</p>
+            <h2 class="mod-name">VirtualFile<br><span style="color:#a5b4fc">Core</span></h2>
+            <p class="mod-desc">VirtualFile Core agrega una <strong style="color:#a5b4fc">capa de inteligencia y decisi&oacute;n</strong> sobre el flujo documental, integrando la evaluaci&oacute;n crediticia dentro del mismo sistema sin depender de procesos externos.</p>
+            <ul class="feats">
+              <li style="--dot:#a5b4fc"><strong style="color:#a5b4fc">Capa de inteligencia</strong> sobre los datos estructurados del Servicio Visado</li>
+              <li>Aplica <strong style="color:#a5b4fc">reglas y pol&iacute;ticas</strong> de cr&eacute;dito configurables</li>
+              <li>Consulta <strong style="color:#a5b4fc">tablas de autorizaci&oacute;n</strong> institucionales</li>
+              <li>Genera <strong style="color:#a5b4fc">aprobaci&oacute;n autom&aacute;tica</strong> dentro del sistema</li>
+              <li>Evaluaci&oacute;n crediticia <strong style="color:#a5b4fc">integrada</strong>, no externa</li>
+              <li>Decisiones <strong style="color:#a5b4fc">auditables</strong> y consistentes en cada caso</li>
+            </ul>
+            <div style="margin-top:1.4rem;padding:.9rem 1.1rem;border-radius:.8rem;background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.3)">
+              <p style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.45rem">&#x26A1; Automatizaci&oacute;n de la decisi&oacute;n</p>
+              <p style="font-size:.8rem;color:var(--muted);line-height:1.6">Datos estructurados &rarr; Reglas y pol&iacute;ticas &rarr; Tablas de autorizaci&oacute;n &rarr; <strong style="color:#a5b4fc">Aprobaci&oacute;n autom&aacute;tica</strong></p>
+            </div>
+          </div>
+          <div class="mod-vis" style="border-color:rgba(99,102,241,.4)">
+            <div class="mod-orb" style="background:#6366f1;top:-70px;right:-70px"></div>
+            <svg viewBox="0 0 280 310" width="248" fill="none">
+              <rect x="20" y="16" width="240" height="28" rx="7" fill="rgba(20,184,166,.1)" stroke="#5eead4" stroke-width="1"/>
+              <text x="140" y="26" text-anchor="middle" fill="#5eead4" font-size="7.5" font-weight="bold" font-family="monospace">&#x1F4CA; Datos estructurados (Servicio Visado)</text>
+              <text x="140" y="38" text-anchor="middle" fill="rgba(94,234,212,.6)" font-size="6" font-family="monospace">RUT &middot; Sucursal &middot; Tipo &middot; Ejecutivo</text>
+              <line x1="140" y1="44" x2="140" y2="58" stroke="rgba(99,102,241,.5)" stroke-width="1" stroke-dasharray="3 3"/>
+              <rect x="16" y="58" width="248" height="130" rx="10" fill="rgba(99,102,241,.06)" stroke="#6366f1" stroke-width="1.3"/>
+              <text x="140" y="74" text-anchor="middle" fill="#a5b4fc" font-size="9" font-weight="bold" font-family="monospace">&#x26A1; VirtualFile Core</text>
+              <rect x="28" y="82" width="100" height="26" rx="6" fill="rgba(99,102,241,.12)" stroke="#a5b4fc" stroke-width=".9"/>
+              <text x="78" y="94" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">&#x1F4CB; Reglas y</text>
+              <text x="78" y="104" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">pol&iacute;ticas</text>
+              <rect x="152" y="82" width="100" height="26" rx="6" fill="rgba(99,102,241,.12)" stroke="#a5b4fc" stroke-width=".9"/>
+              <text x="202" y="94" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">&#x1F5C3; Tablas de</text>
+              <text x="202" y="104" text-anchor="middle" fill="#a5b4fc" font-size="7" font-family="monospace">autorizaci&oacute;n</text>
+              <line x1="78" y1="108" x2="100" y2="122" stroke="#a5b4fc" stroke-width=".8" opacity=".6"/>
+              <line x1="202" y1="108" x2="180" y2="122" stroke="#a5b4fc" stroke-width=".8" opacity=".6"/>
+              <rect x="80" y="122" width="120" height="26" rx="6" fill="rgba(99,102,241,.2)" stroke="#6366f1" stroke-width="1.1"/>
+              <text x="140" y="134" text-anchor="middle" fill="#a5b4fc" font-size="7.5" font-weight="bold" font-family="monospace">&#x1F9E0; Evaluaci&oacute;n</text>
+              <text x="140" y="144" text-anchor="middle" fill="rgba(165,180,252,.6)" font-size="6.2" font-family="monospace">crediticia integrada</text>
+              <circle cx="140" cy="135" r="26" fill="none" stroke="#6366f1" stroke-width=".8" opacity=".3"><animate attributeName="r" values="26;38;26" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".3;0;.3" dur="2.2s" repeatCount="indefinite"/></circle>
+              <line x1="140" y1="188" x2="140" y2="204" stroke="rgba(52,211,153,.6)" stroke-width="1"/>
+              <rect x="56" y="204" width="168" height="30" rx="8" fill="rgba(52,211,153,.12)" stroke="#34d399" stroke-width="1.2"/>
+              <text x="140" y="218" text-anchor="middle" fill="#34d399" font-size="9" font-weight="bold" font-family="monospace">&#x2705; Aprobaci&oacute;n autom&aacute;tica</text>
+              <text x="140" y="229" text-anchor="middle" fill="rgba(52,211,153,.6)" font-size="6.2" font-family="monospace">dentro del sistema &middot; auditable</text>
+              <line x1="140" y1="234" x2="100" y2="248" stroke="#34d399" stroke-width=".7" opacity=".5"/>
+              <line x1="140" y1="234" x2="180" y2="248" stroke="#34d399" stroke-width=".7" opacity=".5"/>
+              <rect x="18" y="248" width="110" height="20" rx="5" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width=".8"/>
+              <text x="73" y="262" text-anchor="middle" fill="#a78bfa" font-size="6.8" font-family="monospace">&#x1F5C4; BD + registro</text>
+              <rect x="152" y="248" width="110" height="20" rx="5" fill="rgba(52,211,153,.09)" stroke="#34d399" stroke-width=".8"/>
+              <text x="207" y="262" text-anchor="middle" fill="#34d399" font-size="6.8" font-family="monospace">&#x1F4C1; expediente digital</text>
+              <text x="20" y="290" fill="rgba(165,180,252,.35)" font-size="6.5" font-family="monospace">Sin sistema externo &middot; Decisi&oacute;n en el core</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /slides -->
   </div>
 </div><!-- /h-track-outer -->
@@ -694,6 +819,90 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
   </div>
 </div>
 
+<!-- ══════════ TRANSICIÓN ══════════ -->
+<div class="section-divider" style="background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(99,102,241,.07),transparent)">
+  <div class="divider-badge">&#x26A1; Proyecci&oacute;n estrat&eacute;gica</div>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3rem);text-align:center">
+    Del <span class="acc">Servicio Visado</span><br>al <span style="color:#a5b4fc">VirtualFile Core</span>
+  </h2>
+  <p class="sub" style="text-align:center;margin:.9rem auto 0">De digitalizar el proceso a <strong style="color:#a5b4fc">automatizar la decisi&oacute;n</strong>.</p>
+</div>
+
+<!-- ══════════ COMPARATIVA ══════════ -->
+<div class="panel" id="comparativa" style="text-align:center">
+  <span class="eyebrow">Comparativa directa</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3.2rem)">Antes <span class="acc">vs</span> Despu&eacute;s</h2>
+  <div class="evo-grid" style="text-align:left">
+    <div class="evo-box current">
+      <span class="evo-label">Modelo actual &mdash; Servicio Visado</span>
+      <div class="evo-title">Captura y digitaliza</div>
+      <ul class="evo-list">
+        <li><span class="dot"></span>OCR sobre formularios marcados en papel</li>
+        <li><span class="dot"></span>Genera TXT e inyecta a proceso externo</li>
+        <li><span class="dot"></span>Registro en BD institucional de Coopeuch</li>
+        <li><span class="dot"></span>Dato nace no digital, se digitaliza despu&eacute;s</li>
+        <li><span class="dot" style="background:#f87171"></span><span style="color:#f87171">Decisi&oacute;n de cr&eacute;dito: sistema externo</span></li>
+        <li><span class="dot" style="background:#f87171"></span><span style="color:#f87171">Sin reglas ni aprobaci&oacute;n en el core</span></li>
+      </ul>
+    </div>
+    <div class="evo-box vf">
+      <span class="evo-label">Evoluci&oacute;n &mdash; VirtualFile Core</span>
+      <div class="evo-title">Captura, eval&uacute;a y decide</div>
+      <ul class="evo-list">
+        <li><span class="dot"></span>Datos estructurados como entrada</li>
+        <li><span class="dot"></span>Reglas y pol&iacute;ticas de cr&eacute;dito integradas</li>
+        <li><span class="dot"></span>Tablas de autorizaci&oacute;n institucionales</li>
+        <li><span class="dot"></span>Evaluaci&oacute;n crediticia dentro del sistema</li>
+        <li><span class="dot" style="background:#34d399"></span><span style="color:#34d399">Aprobaci&oacute;n autom&aacute;tica en el core</span></li>
+        <li><span class="dot" style="background:#34d399"></span><span style="color:#34d399">Auditable, consistente, escalable</span></li>
+      </ul>
+    </div>
+  </div>
+  <span class="eyebrow" style="margin-top:4rem">Beneficios para el negocio</span>
+  <div class="ben-grid">
+    <div class="ben-card">
+      <span class="ico">&#x23F0;</span>
+      <h3>Menor tiempo de respuesta</h3>
+      <p>La aprobaci&oacute;n autom&aacute;tica elimina esperas entre sistemas y reduce el tiempo de ciclo del cr&eacute;dito.</p>
+    </div>
+    <div class="ben-card">
+      <span class="ico">&#x1F9D1;&#x200D;&#x1F4BB;</span>
+      <h3>Menor carga operativa</h3>
+      <p>Las decisiones rutinarias se automatizan: los equipos se enfocan en casos complejos y atenci&oacute;n al cliente.</p>
+    </div>
+    <div class="ben-card">
+      <span class="ico">&#x2696;&#xFE0F;</span>
+      <h3>Decisiones auditables</h3>
+      <p>Cada aprobaci&oacute;n queda registrada con su criterio, fecha y pol&iacute;tica aplicada. Cumplimiento simplificado.</p>
+    </div>
+    <div class="ben-card">
+      <span class="ico">&#x1F4C8;</span>
+      <h3>Escalabilidad sin costo</h3>
+      <p>El volumen crece sin necesidad de escalar el equipo: las reglas se actualizan, el sistema se adapta solo.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MENSAJE CLAVE ══════════ -->
+<div class="panel" id="mensaje" style="text-align:center;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(99,102,241,.06),transparent)">
+  <span class="eyebrow">Posicionamiento comercial</span>
+  <h2 class="big" style="font-size:clamp(1.8rem,4vw,3.2rem)">El mensaje<br><span style="color:#a5b4fc">clave</span></h2>
+  <div class="msg-cards">
+    <div class="msg-card" style="border-color:rgba(20,184,166,.3);background:rgba(20,184,166,.05)">
+      <h3><span style="color:var(--teal-l)">&#x1F916;</span> Servicio Visado</h3>
+      <p>VirtualFile <strong style="color:var(--teal-l)">automatiza la captura y trazabilidad documental</strong>: transforma papel en dato digital, lo estructura, lo almacena y lo inyecta en los flujos institucionales de Coopeuch con trazabilidad completa.</p>
+    </div>
+    <div class="msg-card" style="border-color:rgba(99,102,241,.38);background:rgba(99,102,241,.06)">
+      <h3><span style="color:#a5b4fc">&#x26A1;</span> VirtualFile Core</h3>
+      <p>VirtualFile Core <strong style="color:#a5b4fc">automatiza tambi&eacute;n la evaluaci&oacute;n y decisi&oacute;n del cr&eacute;dito</strong>: integra reglas, pol&iacute;ticas y tablas de autorizaci&oacute;n para generar aprobaciones autom&aacute;ticas dentro del mismo sistema, sin depender de procesos externos.</p>
+    </div>
+  </div>
+  <div style="margin-top:3rem;padding:1.4rem 2rem;border-radius:1rem;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.06);max-width:700px;text-align:center">
+    <p style="font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.7rem">Proyecci&oacute;n estrat&eacute;gica</p>
+    <p style="font-size:1.05rem;font-weight:700;line-height:1.6;color:var(--white)">Del <span style="color:var(--teal-l)">Servicio Visado</span> al <span style="color:#a5b4fc">VirtualFile Core</span>:<br>de digitalizar el proceso a <strong style="color:#a5b4fc">automatizar la decisi&oacute;n.</strong></p>
+  </div>
+</div>
+
 <!-- ══════════ STATS ══════════ -->
 <div class="panel" id="stats" style="min-height:50vh">
   <span class="eyebrow">El sistema en n&uacute;meros</span>
@@ -701,7 +910,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
     <div><span class="st-n" data-target="3">0</span><p class="st-l">Zonas geogr&aacute;ficas</p></div>
     <div><span class="st-n" data-target="4">0</span><p class="st-l">Campos capturados</p></div>
     <div><span class="st-n" data-target="2">0</span><p class="st-l">Salidas por proceso (archivo + BD)</p></div>
-    <div><span class="st-n" data-target="0">0</span><p class="st-l">Intervenciones manuales</p></div>
+    <div><span class="st-n" data-target="0">0</span><p class="st-l">Intervenciones manuales en la decisi&oacute;n</p></div>
   </div>
 </div>
 
@@ -712,6 +921,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
     <a href="https://softcapture-usa.com/productos" target="_blank">Productos</a>
     <a href="https://softcapture-usa.com/contacto" target="_blank">Contacto</a>
   </div>
+  <span style="font-size:.7rem;color:rgba(99,102,241,.5);letter-spacing:.06em">Incluye proyecci&oacute;n VirtualFile Core</span>
   <span>&copy; 2026 SoftCapture&reg; &middot; Todos los derechos reservados.</span>
 </footer>
 
