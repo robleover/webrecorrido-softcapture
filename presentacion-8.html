@@ -9,25 +9,25 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07071a;
-  --ind:#6366f1;
+  --bg:#ffffff;
+  --ind:#4f46e5;
   --ind-d:#4338ca;
-  --ind-l:#a5b4fc;
-  --white:#f5f3ff;
-  --muted:#64748b;
-  --card:rgba(7,7,30,0.94);
-  --border:rgba(99,102,241,0.22);
+  --ind-l:#4f46e5;
+  --white:#0f172a;
+  --muted:#475569;
+  --card:rgba(238,242,255,0.9);
+  --border:rgba(79,70,229,0.22);
 }
 html{scroll-behavior:auto}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
-#topbar{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:rgba(7,7,26,.9);border-bottom:1px solid rgba(99,102,241,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
+#topbar{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;background:rgba(255,255,255,.96);border-bottom:1px solid rgba(79,70,229,.15);box-shadow:0 1px 16px rgba(0,0,0,.06);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .4s}
 #topbar.visible{opacity:1;pointer-events:auto}
 .tb-logo{font-weight:900;font-size:.9rem;text-decoration:none;color:var(--white)}
 .tb-logo span{color:var(--ind-l)}
 .tb-back{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:color .2s}
 .tb-back:hover{color:var(--ind-l)}
 .tb-tag{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ind-l);background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.28);border-radius:2rem;padding:.25rem .8rem}
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.18}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.06}
 #prog{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--ind),var(--ind-l));z-index:700}
 .panel{width:100vw;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;overflow:hidden;padding:6rem 2rem}
 .h-track-outer{position:relative;z-index:1}
@@ -64,7 +64,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .feats{list-style:none;display:flex;flex-direction:column;gap:.6rem}
 .feats li{display:flex;align-items:flex-start;gap:.65rem;font-size:.87rem}
 .feats li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ind-l);margin-top:.4rem;flex-shrink:0}
-.mod-vis{height:380px;border-radius:1.5rem;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mod-vis{height:380px;border-radius:1.5rem;background:#080820;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .mod-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;width:260px;height:260px;opacity:.1}
 .intro-slide{max-width:640px;text-align:center}
 .arrow-anim{margin-top:1.5rem;font-size:2rem;animation:sp 1.5s ease-in-out infinite;display:inline-block;color:var(--ind-l)}
@@ -80,13 +80,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .evo-box.current{border-color:rgba(20,184,166,.28);background:rgba(20,184,166,.04)}
 .evo-box.vf{border-color:rgba(99,102,241,.38);background:rgba(99,102,241,.07)}
 .evo-label{font-size:.6rem;font-weight:800;letter-spacing:.32em;text-transform:uppercase;display:block;margin-bottom:.8rem}
-.evo-box.current .evo-label{color:#5eead4}
+.evo-box.current .evo-label{color:#0d9488}
 .evo-box.vf .evo-label{color:var(--ind-l)}
 .evo-title{font-size:1.3rem;font-weight:900;margin-bottom:1rem;line-height:1.15}
 .evo-list{list-style:none;display:flex;flex-direction:column;gap:.55rem}
 .evo-list li{font-size:.84rem;display:flex;align-items:flex-start;gap:.55rem;color:var(--muted);line-height:1.5}
 .evo-list li .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.42rem}
-.evo-box.current .dot{background:#5eead4}
+.evo-box.current .dot{background:#0d9488}
 .evo-box.vf .dot{background:var(--ind-l)}
 .evo-arrow{display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:rgba(99,102,241,.4);align-self:center}
 /* decision flow */
@@ -118,7 +118,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .st-n{font-size:3.2rem;font-weight:900;color:var(--ind-l);display:block;line-height:1}
 .st-l{color:var(--muted);font-size:.78rem;margin-top:.42rem;letter-spacing:.1em;text-transform:uppercase}
 /* play overlay */
-#play-overlay{position:fixed;inset:0;z-index:500;background:rgba(7,7,26,.97);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:auto;transition:opacity 1s ease}
+#play-overlay{position:fixed;inset:0;z-index:500;background:rgba(255,255,255,.98);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:auto;transition:opacity 1s ease}
 .play-inner{max-width:580px;padding:2rem}
 .play-eye{font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ind-l);display:block;margin-bottom:1.5rem}
 .play-title{font-size:clamp(2.6rem,6vw,4.8rem);font-weight:900;line-height:1.05;margin-bottom:1.1rem}
@@ -145,15 +145,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 #mute-btn.muted{color:#ef4444;border-color:rgba(239,68,68,.35)}
 #tour-nav{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:400;opacity:0;pointer-events:none;transition:opacity .4s}
 #tour-nav.visible{opacity:1;pointer-events:auto}
-#nav-panel{position:absolute;left:0;top:50%;transform:translateY(-50%) translateX(calc(-100% - 1px));background:rgba(7,7,26,.92);border:1px solid rgba(99,102,241,.2);border-left:none;border-radius:0 14px 14px 0;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:.65rem 0;min-width:240px;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+#nav-panel{position:absolute;left:0;top:50%;transform:translateY(-50%) translateX(calc(-100% - 1px));background:rgba(255,255,255,.97);border:1px solid rgba(79,70,229,.18);border-left:none;border-radius:0 14px 14px 0;box-shadow:4px 0 20px rgba(0,0,0,.07);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:.65rem 0;min-width:240px;transition:transform .35s cubic-bezier(.4,0,.2,1)}
 #tour-nav.open #nav-panel{transform:translateY(-50%) translateX(0)}
-#nav-toggle{position:absolute;left:0;top:50%;transform:translateY(-50%);width:22px;height:50px;background:rgba(7,7,26,.88);border:1px solid rgba(99,102,241,.24);border-left:none;border-radius:0 8px 8px 0;color:var(--ind-l);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:left .35s cubic-bezier(.4,0,.2,1),background .2s;padding:0}
-#nav-toggle:hover{background:rgba(99,102,241,.12)}
+#nav-toggle{position:absolute;left:0;top:50%;transform:translateY(-50%);width:22px;height:50px;background:rgba(255,255,255,.96);border:1px solid rgba(79,70,229,.22);border-left:none;border-radius:0 8px 8px 0;box-shadow:2px 0 8px rgba(0,0,0,.05);color:var(--ind-l);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:left .35s cubic-bezier(.4,0,.2,1),background .2s;padding:0}
+#nav-toggle:hover{background:rgba(79,70,229,.09)}
 #tour-nav.open #nav-toggle{left:240px}
 .nav-label{font-size:.55rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ind-l);padding:.1rem 1.15rem .65rem;display:block}
 #nav-list{list-style:none}
 #nav-list li button{width:100%;text-align:left;padding:.46rem 1.15rem;background:none;border:none;color:var(--muted);font-size:.75rem;letter-spacing:.03em;cursor:pointer;transition:color .18s,background .18s,padding-left .18s;display:flex;align-items:center;gap:.55rem}
-#nav-list li button:hover{color:var(--white);background:rgba(99,102,241,.08);padding-left:1.5rem}
+#nav-list li button:hover{color:var(--ind-l);background:rgba(79,70,229,.07);padding-left:1.5rem}
 #nav-list li button.active{color:var(--ind-l)}
 #nav-list li button .nd{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 .nav-sep{height:1px;background:rgba(99,102,241,.12);margin:.38rem .9rem}
@@ -306,12 +306,12 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
         <div class="mod-card">
           <div>
             <p class="mod-num">01 &middot; Hoy</p>
-            <h2 class="mod-name">Modelo actual:<br><span style="color:#5eead4">Servicio Visado</span></h2>
+            <h2 class="mod-name">Modelo actual:<br><span style="color:#0d9488">Servicio Visado</span></h2>
             <p class="mod-desc">El Servicio Visado automatiza la captura f&iacute;sica de documentos, transforma papel en dato digital y lo inyecta en los procesos institucionales de Coopeuch.</p>
             <ul class="feats">
               <li>Captura documental automatizada desde sucursales</li>
               <li>OCR indirecto sobre formularios marcados por el ejecutivo</li>
-              <li>Genera archivo <code style="color:#5eead4;font-size:.82em">TXT</code> con campos extra&iacute;dos</li>
+              <li>Genera archivo <code style="color:#0d9488;font-size:.82em">TXT</code> con campos extra&iacute;dos</li>
               <li>Inyecci&oacute;n a proceso de cr&eacute;dito externo</li>
               <li>Registro estructurado en base de datos institucional de Coopeuch</li>
               <li style="color:var(--muted);font-style:italic">La aprobaci&oacute;n ocurre <em>fuera</em> del sistema</li>
@@ -358,14 +358,14 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
         <div class="mod-card">
           <div>
             <p class="mod-num">02 &middot; Flujo actual</p>
-            <h2 class="mod-name">Flujo<br><span style="color:#5eead4">end-to-end</span></h2>
+            <h2 class="mod-name">Flujo<br><span style="color:#0d9488">end-to-end</span></h2>
             <p class="mod-desc">El proceso completo desde el escaneo en sucursal hasta el registro en la base de datos de Coopeuch, con sus etapas y actores.</p>
             <ul class="feats">
-              <li><strong style="color:#5eead4">Escaneo sucursal</strong> &mdash; ejecutivo escanea el formulario f&iacute;sico</li>
-              <li><strong style="color:#5eead4">Servicio Visado</strong> &mdash; detecta, renombra y mueve el archivo</li>
-              <li><strong style="color:#5eead4">OCR indirecto</strong> &mdash; extrae campos del formulario marcado</li>
-              <li><strong style="color:#5eead4">TXT generado</strong> &mdash; consolidado de datos estructurados</li>
-              <li><strong style="color:#5eead4">BD Cliente</strong> &mdash; registro trazable en Coopeuch</li>
+              <li><strong style="color:#0d9488">Escaneo sucursal</strong> &mdash; ejecutivo escanea el formulario f&iacute;sico</li>
+              <li><strong style="color:#0d9488">Servicio Visado</strong> &mdash; detecta, renombra y mueve el archivo</li>
+              <li><strong style="color:#0d9488">OCR indirecto</strong> &mdash; extrae campos del formulario marcado</li>
+              <li><strong style="color:#0d9488">TXT generado</strong> &mdash; consolidado de datos estructurados</li>
+              <li><strong style="color:#0d9488">BD Cliente</strong> &mdash; registro trazable en Coopeuch</li>
               <li style="color:var(--muted);font-style:italic">Proceso de cr&eacute;dito: sistema externo independiente</li>
             </ul>
           </div>
@@ -587,8 +587,8 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
   </h2>
   <div class="msg-cards">
     <div class="msg-card" style="border-color:rgba(20,184,166,.3);background:rgba(20,184,166,.05)">
-      <h3><span style="color:#5eead4">&#x1F916;</span> Servicio Visado</h3>
-      <p>VirtualFile <strong style="color:#5eead4">automatiza la captura y trazabilidad documental</strong>: transforma papel en dato digital, lo estructura, lo almacena y lo inyecta en los flujos institucionales de Coopeuch con trazabilidad completa.</p>
+      <h3><span style="color:#0d9488">&#x1F916;</span> Servicio Visado</h3>
+      <p>VirtualFile <strong style="color:#0d9488">automatiza la captura y trazabilidad documental</strong>: transforma papel en dato digital, lo estructura, lo almacena y lo inyecta en los flujos institucionales de Coopeuch con trazabilidad completa.</p>
     </div>
     <div class="msg-card" style="border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.07)">
       <h3><span style="color:var(--ind-l)">&#x26A1;</span> VirtualFile Core</h3>
@@ -597,7 +597,7 @@ footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2r
   </div>
   <div style="margin-top:3rem;padding:1.4rem 2rem;border-radius:1rem;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.07);max-width:700px;text-align:center">
     <p style="font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ind-l);margin-bottom:.7rem">Proyecci&oacute;n estrat&eacute;gica</p>
-    <p style="font-size:1.05rem;font-weight:700;line-height:1.6;color:var(--white)">Del <span style="color:#5eead4">Servicio Visado</span> al <span style="color:var(--ind-l)">VirtualFile Core</span>:<br>de digitalizar el proceso a <strong style="color:var(--ind-l)">automatizar la decisi&oacute;n.</strong></p>
+    <p style="font-size:1.05rem;font-weight:700;line-height:1.6;color:var(--white)">Del <span style="color:#0d9488">Servicio Visado</span> al <span style="color:var(--ind-l)">VirtualFile Core</span>:<br>de digitalizar el proceso a <strong style="color:var(--ind-l)">automatizar la decisi&oacute;n.</strong></p>
   </div>
 </div>
 
